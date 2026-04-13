@@ -49,9 +49,7 @@ async def process_essay(job_id: str, req: EssayRequest):
             topic=req.topic,
             paper_type=req.paper_type,
             language=req.language,
-            context=research["context"] + ("
-
-User context: " + req.context_input if req.context_input else ""),
+            context=research["context"] + ("\n\nUser context: " + req.context_input if req.context_input else ""),
             additional_instructions=req.additional_instructions
         )
         essay["topic"] = req.topic
