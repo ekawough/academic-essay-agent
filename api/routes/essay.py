@@ -20,6 +20,7 @@ class EssayRequest(BaseModel):
     paper_type: str = "bachelor"
     language: str = "en"
     additional_instructions: Optional[str] = None
+    context_input: Optional[str] = None
     push_to_notion: bool = False
 
 class EssayResponse(BaseModel):
@@ -48,7 +49,9 @@ async def process_essay(job_id: str, req: EssayRequest):
             topic=req.topic,
             paper_type=req.paper_type,
             language=req.language,
-            context=research["context"],
+            context=research["context"] + ("
+
+User context: " + req.context_input if req.context_input else ""),
             additional_instructions=req.additional_instructions
         )
         essay["topic"] = req.topic
