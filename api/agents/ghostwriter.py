@@ -67,7 +67,7 @@ Language: {language}
 Write the complete essay now, starting with the Abstract:"""
 
     response = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.0-flash-lite",
         contents=prompt,
         config=types.GenerateContentConfig(
             max_output_tokens=8192,
@@ -83,7 +83,7 @@ Write the complete essay now, starting with the Abstract:"""
         "citations": _extract_citations(full_text),
         "word_count": len(full_text.split()),
         "paper_type": paper_type,
-        "model_used": "gemini-2.0-flash"
+        "model_used": "gemini-2.0-flash-lite"
     }
 
 def _parse_sections(text):
