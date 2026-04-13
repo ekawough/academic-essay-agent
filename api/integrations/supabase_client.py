@@ -1,20 +1,13 @@
 import os
 from supabase import create_client, Client
 
-def get_supabase() -> Client:
-    url = os.getenv("SUPABASE_URL")
-    key = os.getenv("SUPABASE_SERVICE_KEY")
-    if not url or not key:
-        raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_KEY must be set in .env")
-    return create_client(url, key)
+_client = None
 
-supabase: Client = None
-
-def init_supabase():
-    global supabase
-    try:
-        supabase = get_supabase()
-        print("Supabase connected.")
-    except Exception as e:
-        print(f"Supabase not configured: {e}")
-        supabase = None
+def get_db() -> Client:
+    global _client
+    if _client is None:
+        url = os.getenv("SUPABASE_URL")
+        key = os.getenv("SUPABASE_SERVICE_KEY")
+        if url and key:
+            _client = create_client(url, key)
+    return _client
