@@ -3,368 +3,392 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Academic Essay Agent</title>
+<title>Essay Writer</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f9f9f7;--surface:#fff;--surface2:#f3f2ef;--surface3:#eae9e5;
-  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.18);
-  --text:#1a1a18;--text2:#5a5a56;--text3:#909088;
-  --accent:#4f46e5;--accent-bg:#eef2ff;--accent-text:#3730a3;
-  --success:#059669;--success-bg:#ecfdf5;
-  --warning:#d97706;--warning-bg:#fffbeb;
-  --danger:#dc2626;--danger-bg:#fef2f2;
-  --radius:10px;--radius-sm:6px;
+  --bg:#f7f7f5;--surface:#ffffff;--surface2:#f0efe9;--surface3:#e8e7e0;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.15);
+  --text:#1c1c1a;--text2:#6b6b65;--text3:#9a9a92;
+  --accent:#2563eb;--accent-light:#eff6ff;--accent-text:#1d4ed8;
+  --success:#16a34a;--success-light:#f0fdf4;
+  --danger:#dc2626;--danger-light:#fef2f2;
+  --warning:#d97706;--warning-light:#fffbeb;
+  --r:12px;--r-sm:8px;
 }
 @media(prefers-color-scheme:dark){:root{
-  --bg:#18181a;--surface:#24242a;--surface2:#2e2e36;--surface3:#38383f;
-  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.16);
-  --text:#f0f0ee;--text2:#a0a09c;--text3:#66665f;
-  --accent:#818cf8;--accent-bg:#1e1b4b;--accent-text:#a5b4fc;
-  --success-bg:#064e3b;--warning-bg:#451a03;--danger-bg:#450a0a;
+  --bg:#111110;--surface:#1c1c1a;--surface2:#242422;--surface3:#2e2e2b;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
+  --text:#f2f2ee;--text2:#9a9a92;--text3:#5a5a55;
+  --accent:#3b82f6;--accent-light:#172554;--accent-text:#93c5fd;
+  --success-light:#052e16;--danger-light:#450a0a;--warning-light:#431407;
 }}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6}
-.app{display:flex;min-height:100vh}
-.sidebar{width:240px;min-height:100vh;background:var(--surface);border-right:0.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;overflow-y:auto}
-.main{margin-left:240px;flex:1;padding:1.75rem 2rem;max-width:980px}
-.logo{padding:1.1rem 1rem 0.9rem;border-bottom:0.5px solid var(--border)}
-.logo h1{font-size:14px;font-weight:600;letter-spacing:-0.2px}
-.logo p{font-size:11px;color:var(--text3);margin-top:2px}
-.nav-sec{padding:0.75rem 0.5rem 0.25rem}
-.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3);padding:0 0.5rem 0.35rem}
-.nav-btn{width:100%;padding:0.45rem 0.6rem;background:none;border:none;border-radius:var(--radius-sm);cursor:pointer;text-align:left;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:0.45rem;transition:background 0.12s;font-family:inherit}
-.nav-btn:hover{background:var(--surface2);color:var(--text)}
-.nav-btn.active{background:var(--accent-bg);color:var(--accent-text);font-weight:500}
-.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
-.card-title{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:0.9rem;text-transform:uppercase;letter-spacing:0.4px}
-label{display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:0.35rem}
-label span{font-weight:400;color:var(--text3)}
-input[type=text],textarea,select{width:100%;padding:0.55rem 0.75rem;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border 0.15s}
-input[type=text]:focus,textarea:focus,select:focus{border-color:var(--accent)}
-textarea{resize:vertical}
-select{cursor:pointer}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem}
-.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-bottom:0.75rem}
-.field{margin-bottom:0.75rem}
-.btn{padding:0.55rem 1.1rem;border-radius:var(--radius-sm);border:0.5px solid var(--border2);background:none;color:var(--text);font-size:13px;font-weight:500;cursor:pointer;transition:background 0.12s,transform 0.1s;font-family:inherit}
+
+/* Layout */
+.shell{display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--surface);border-right:0.5px solid var(--border);display:flex;flex-direction:column;position:fixed;inset:0 auto 0 0;overflow-y:auto}
+.content{margin-left:220px;flex:1;min-height:100vh}
+
+/* Sidebar */
+.brand{padding:1.25rem 1rem 1rem;border-bottom:0.5px solid var(--border)}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:-0.3px;color:var(--text)}
+.brand-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.nav{padding:0.75rem 0.5rem}
+.nav-item{display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0.65rem;border-radius:var(--r-sm);font-size:13px;color:var(--text2);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:inherit;transition:all 0.1s}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.on{background:var(--accent-light);color:var(--accent-text);font-weight:500}
+.nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:0.75rem;font-size:10px;color:var(--text3);border-top:0.5px solid var(--border);line-height:1.6}
+
+/* Pages */
+.page{display:none;padding:2rem 2.5rem;max-width:780px}
+.page.on{display:block}
+.page-title{font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-bottom:0.25rem}
+.page-sub{font-size:13px;color:var(--text2);margin-bottom:1.75rem}
+
+/* Cards */
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-bottom:1rem}
+.card-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3);margin-bottom:1rem}
+
+/* Form */
+.field{margin-bottom:1rem}
+.field:last-child{margin-bottom:0}
+.label{font-size:13px;font-weight:500;color:var(--text);margin-bottom:0.4rem;display:block}
+.hint{font-size:11px;color:var(--text3);margin-top:0.25rem}
+input,textarea,select{width:100%;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border 0.15s,box-shadow 0.15s}
+input{padding:0.6rem 0.85rem;height:40px}
+textarea{padding:0.7rem 0.85rem;resize:vertical}
+select{padding:0.6rem 0.85rem;height:40px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.75rem center}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem}
+
+/* Big topic input */
+.topic-wrap{position:relative}
+.topic-input{width:100%;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--r);padding:1rem 1.15rem 1rem;font-size:16px;font-family:inherit;color:var(--text);outline:none;resize:none;min-height:72px;transition:border 0.15s,box-shadow 0.15s;line-height:1.55}
+.topic-input::placeholder{color:var(--text3)}
+.topic-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+
+/* Chips for paper type */
+.chip-row{display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.35rem}
+.chip{padding:0.35rem 0.85rem;border-radius:20px;font-size:13px;font-weight:500;border:1.5px solid var(--border2);background:none;color:var(--text2);cursor:pointer;transition:all 0.1s;font-family:inherit}
+.chip:hover{border-color:var(--accent);color:var(--accent-text)}
+.chip.on{border-color:var(--accent);background:var(--accent-light);color:var(--accent-text)}
+
+/* Upload zone */
+.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--r-sm);padding:1.1rem;text-align:center;cursor:pointer;background:var(--surface2);position:relative;transition:all 0.15s}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:var(--accent-light)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-zone-inner{pointer-events:none}
+.upload-zone-inner p{font-size:13px;color:var(--text2);margin-top:0.25rem}
+.upload-zone-inner .sub{font-size:11px;color:var(--text3)}
+.chips-list{display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.5rem}
+.file-pill{display:inline-flex;align-items:center;gap:0.3rem;background:var(--surface3);border:0.5px solid var(--border);border-radius:20px;padding:0.2rem 0.55rem 0.2rem 0.65rem;font-size:12px;color:var(--text2)}
+.file-pill button{background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;line-height:1;padding:0;margin-left:1px;display:flex;align-items:center}
+.file-pill button:hover{color:var(--danger)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0 1.25rem;height:40px;border-radius:var(--r-sm);font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.1s;border:0.5px solid var(--border2);background:none;color:var(--text)}
 .btn:hover{background:var(--surface2)}
 .btn:active{transform:scale(0.98)}
-.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-.btn-primary:hover{opacity:0.9;background:var(--accent)}
-.btn-primary:disabled{opacity:0.45;cursor:not-allowed}
-.btn-sm{padding:0.3rem 0.65rem;font-size:12px}
-.btn-ghost{border-color:transparent;color:var(--text2)}
-.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);height:44px;font-size:15px;padding:0 1.5rem}
+.btn-primary:hover{opacity:0.88;background:var(--accent)}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.btn-sm{height:32px;padding:0 0.85rem;font-size:12px}
+.btn-row{display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center}
 
-/* File upload zone */
-.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--radius-sm);padding:1rem;text-align:center;cursor:pointer;transition:all 0.15s;background:var(--surface2);position:relative}
-.upload-zone:hover,.upload-zone.dragover{border-color:var(--accent);background:var(--accent-bg)}
-.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.upload-zone p{font-size:12px;color:var(--text2);pointer-events:none}
-.upload-zone .uz-icon{font-size:20px;margin-bottom:0.3rem;pointer-events:none}
-.file-chip{display:inline-flex;align-items:center;gap:0.3rem;background:var(--surface3);border:0.5px solid var(--border);border-radius:20px;padding:0.2rem 0.6rem;font-size:11px;color:var(--text2);margin:0.25rem 0.25rem 0 0}
-.file-chip button{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;line-height:1;padding:0;margin-left:2px}
-.file-chip button:hover{color:var(--danger)}
+/* Generate bar at bottom */
+.gen-bar{display:flex;align-items:center;justify-content:space-between;margin-top:1.25rem;padding-top:1.25rem;border-top:0.5px solid var(--border)}
+.gen-note{font-size:12px;color:var(--text3)}
 
 /* Progress */
-.progress-bar{height:3px;background:var(--surface2);border-radius:2px;overflow:hidden;margin:0.6rem 0}
-.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.5s ease}
-.badge{display:inline-flex;align-items:center;gap:3px;padding:0.18rem 0.55rem;border-radius:20px;font-size:11px;font-weight:500}
-.badge-queued{background:var(--surface2);color:var(--text2)}
-.badge-researching{background:var(--warning-bg);color:var(--warning)}
-.badge-writing{background:var(--accent-bg);color:var(--accent-text)}
-.badge-complete{background:var(--success-bg);color:var(--success)}
-.badge-failed{background:var(--danger-bg);color:var(--danger)}
-
-/* Tabs */
-.tabs{display:flex;gap:0.15rem;border-bottom:0.5px solid var(--border);margin-bottom:1rem}
-.tab{padding:0.45rem 0.85rem;border:none;background:none;color:var(--text2);font-size:13px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-0.5px;font-family:inherit;white-space:nowrap}
-.tab.active{color:var(--accent-text);border-bottom-color:var(--accent);font-weight:500}
-
-/* Essay content */
-.essay-content{font-size:14px;line-height:1.85;color:var(--text);font-family:Georgia,'Times New Roman',serif;max-height:500px;overflow-y:auto;padding:1rem;background:var(--surface2);border-radius:var(--radius-sm);white-space:pre-wrap}
-.stat-row{display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.85rem}
-.stat{background:var(--surface2);border-radius:var(--radius-sm);padding:0.55rem 0.85rem}
-.stat-label{font-size:10px;color:var(--text3)}
-.stat-value{font-size:17px;font-weight:600;color:var(--text)}
+.progress-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-top:1rem}
+.status-row{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.6rem}
+.badge{display:inline-flex;align-items:center;padding:0.2rem 0.6rem;border-radius:20px;font-size:11px;font-weight:600}
+.b-queued{background:var(--surface2);color:var(--text2)}
+.b-researching{background:var(--warning-light);color:var(--warning)}
+.b-writing{background:var(--accent-light);color:var(--accent-text)}
+.b-complete{background:var(--success-light);color:var(--success)}
+.b-failed{background:var(--danger-light);color:var(--danger)}
+.pbar{height:3px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.pfill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.5s ease}
+.status-msg{font-size:13px;color:var(--text2)}
+.status-detail{font-size:11px;color:var(--text3);margin-top:0.4rem}
 
 /* Research panel */
-.research-item{padding:0.6rem 0;border-bottom:0.5px solid var(--border);font-size:11px;color:var(--text2);font-family:'Courier New',monospace;line-height:1.5}
-.research-item:last-child{border-bottom:none}
-.research-meta{font-size:10px;color:var(--text3);margin-top:2px}
-
-/* Source tag */
-.source-tag{display:inline-flex;align-items:center;padding:0.15rem 0.45rem;border-radius:20px;font-size:10px;font-weight:500;margin-right:4px}
-.tag-crossref{background:#e0f2fe;color:#0369a1}
-.tag-openalex{background:#f0fdf4;color:#15803d}
-.tag-semanticscholar{background:#fdf4ff;color:#9333ea}
+.research-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-top:1rem}
+.source-row{padding:0.5rem 0;border-bottom:0.5px solid var(--border);font-size:12px;color:var(--text2);line-height:1.55}
+.source-row:last-child{border:none}
+.source-num{color:var(--text3);font-weight:600;margin-right:0.4rem}
+.db-tag{display:inline-flex;font-size:10px;font-weight:600;padding:0.1rem 0.4rem;border-radius:4px;margin-right:0.35rem;vertical-align:middle}
+.db-cr{background:#dbeafe;color:#1e40af}.db-oa{background:#dcfce7;color:#15803d}.db-ss{background:#fae8ff;color:#7e22ce}
 @media(prefers-color-scheme:dark){
-  .tag-crossref{background:#0c4a6e;color:#7dd3fc}
-  .tag-openalex{background:#14532d;color:#86efac}
-  .tag-semanticscholar{background:#4a044e;color:#e879f9}
+  .db-cr{background:#1e3a5f;color:#93c5fd}.db-oa{background:#14532d;color:#86efac}.db-ss{background:#4a044e;color:#e879f9}
 }
 
-/* Toggle */
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0}
-.toggle{width:34px;height:18px;background:var(--border2);border-radius:9px;position:relative;cursor:pointer;border:none;transition:background 0.2s;flex-shrink:0}
-.toggle.on{background:var(--accent)}
-.toggle::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:2px;left:2px;transition:left 0.2s}
-.toggle.on::after{left:18px}
+/* Result */
+.result-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-top:1rem}
+.stats-row{display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1.1rem}
+.stat-box{background:var(--surface2);border-radius:var(--r-sm);padding:0.5rem 0.85rem}
+.stat-n{font-size:18px;font-weight:700;color:var(--text);line-height:1.2}
+.stat-l{font-size:10px;color:var(--text3)}
+
+/* Tabs */
+.tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:1rem}
+.tab{padding:0.5rem 1rem;border:none;background:none;font-size:13px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-0.5px;font-family:inherit}
+.tab.on{color:var(--accent-text);border-bottom-color:var(--accent);font-weight:500}
+
+/* Essay text */
+.essay-body{font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:1.9;color:var(--text);white-space:pre-wrap;max-height:520px;overflow-y:auto;padding:0.5rem 0}
 
 /* Originality meter */
-.orig-meter{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin:0.4rem 0}
-
-/* Page visibility */
-.page{display:none}.page.active{display:block}
+.o-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin:0.5rem 0 0.35rem}
+.o-fill{height:100%;border-radius:3px}
 
 /* History */
-.history-item{padding:0.65rem 0.75rem;border:0.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:0.45rem;cursor:pointer;transition:background 0.12s}
-.history-item:hover{background:var(--surface2)}
+.h-item{padding:0.75rem;border:0.5px solid var(--border);border-radius:var(--r-sm);margin-bottom:0.5rem;cursor:pointer;transition:background 0.1s}
+.h-item:hover{background:var(--surface2)}
+.h-title{font-size:14px;font-weight:500}
+.h-meta{font-size:11px;color:var(--text3);margin-top:2px}
 
-/* Collapsible section */
-.section-toggle{width:100%;background:none;border:none;border-top:0.5px solid var(--border);padding:0.6rem 0;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);font-family:inherit}
-.section-toggle:hover{color:var(--text)}
-.chevron{transition:transform 0.2s;font-size:10px}
-.chevron.open{transform:rotate(180deg)}
-.section-body{overflow:hidden;transition:max-height 0.25s ease}
+/* Settings section headers */
+.s-head{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px;margin:1.5rem 0 0.75rem;padding-bottom:0.5rem;border-bottom:0.5px solid var(--border)}
+.s-head:first-of-type{margin-top:0}
 
-@media(max-width:768px){
+@media(max-width:700px){
   .sidebar{display:none}
-  .main{margin-left:0;padding:1rem}
-  .row2,.row3{grid-template-columns:1fr}
+  .content{margin-left:0}
+  .page{padding:1.25rem}
+  .grid2,.grid3{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
-<div class="app">
+<div class="shell">
 
 <nav class="sidebar">
-  <div class="logo">
-    <h1>Essay Agent</h1>
-    <p>Academic Writing AI</p>
+  <div class="brand">
+    <div class="brand-name">Essay Writer</div>
+    <div class="brand-sub">AI Academic Writing</div>
   </div>
-  <div class="nav-sec">
-    <div class="nav-label">Write</div>
-    <button class="nav-btn active" onclick="showPage('generate',this)">✏️ Generate Essay</button>
-    <button class="nav-btn" onclick="showPage('history',this)">📋 My Essays</button>
+  <div class="nav">
+    <button class="nav-item on" onclick="go('write',this)">
+      <span class="nav-icon">✍️</span> Write Essay
+    </button>
+    <button class="nav-item" onclick="go('essays',this)">
+      <span class="nav-icon">📄</span> My Essays
+    </button>
+    <button class="nav-item" onclick="go('check',this)">
+      <span class="nav-icon">🔍</span> Check Originality
+    </button>
+    <button class="nav-item" onclick="go('settings',this)">
+      <span class="nav-icon">⚙️</span> Settings
+    </button>
   </div>
-  <div class="nav-sec">
-    <div class="nav-label">Tools</div>
-    <button class="nav-btn" onclick="showPage('check',this)">🔍 Originality Check</button>
-    <button class="nav-btn" onclick="showPage('settings',this)">⚙️ Settings</button>
-  </div>
-  <div style="margin-top:auto;padding:0.75rem;font-size:10px;color:var(--text3);border-top:0.5px solid var(--border)">
-    Sources: CrossRef · OpenAlex · Semantic Scholar
+  <div class="sidebar-footer">
+    Powered by Gemini 2.5<br>
+    CrossRef · OpenAlex · Semantic Scholar
   </div>
 </nav>
 
-<main class="main">
+<main class="content">
 
-<!-- GENERATE PAGE -->
-<div id="page-generate" class="page active">
-  <h2 style="font-size:19px;font-weight:600;margin-bottom:1.25rem;letter-spacing:-0.3px">Generate Essay</h2>
+<!-- WRITE -->
+<div id="pg-write" class="page on">
+  <div class="page-title">Write an Essay</div>
+  <div class="page-sub">Tell me what you need — I'll research and write it for you.</div>
 
   <div class="card">
-    <div class="card-title">Essay Details</div>
+    <div class="field">
+      <span class="label">What's your essay about?</span>
+      <textarea class="topic-input" id="topic" placeholder="e.g. The impact of social media on teenage mental health, with a focus on Instagram and TikTok..." rows="2"></textarea>
+    </div>
 
-    <div class="row3">
-      <div>
-        <label>Paper Type</label>
-        <select id="paper_type">
-          <option value="research_paper">Research Paper (2–3k)</option>
-          <option value="bachelor" selected>Bachelor's Level (3–5k)</option>
-          <option value="master">Master's Level (5–8k)</option>
-        </select>
+    <div class="field">
+      <span class="label">Paper type</span>
+      <div class="chip-row" id="paper-chips">
+        <button class="chip" data-val="research_paper" onclick="selectChip(this,'paper-chips')">Research Paper <span style="color:var(--text3);font-size:11px">2–3k words</span></button>
+        <button class="chip on" data-val="bachelor" onclick="selectChip(this,'paper-chips')">Undergraduate <span style="color:var(--text3);font-size:11px">3–5k words</span></button>
+        <button class="chip" data-val="master" onclick="selectChip(this,'paper-chips')">Graduate <span style="color:var(--text3);font-size:11px">5–8k words</span></button>
       </div>
-      <div>
-        <label>Language</label>
+    </div>
+
+    <div class="grid2">
+      <div class="field">
+        <span class="label">Language</span>
         <select id="language">
           <option value="en">English</option>
           <option value="es">Spanish</option>
           <option value="fr">French</option>
           <option value="de">German</option>
           <option value="pt">Portuguese</option>
+          <option value="it">Italian</option>
+          <option value="zh">Chinese</option>
         </select>
       </div>
-      <div>
-        <label>Writing Style</label>
-        <select id="writing_style">
-          <option value="">Default (Academic)</option>
+      <div class="field">
+        <span class="label">Essay style</span>
+        <select id="essay_style">
+          <option value="">General Academic</option>
           <option value="argumentative">Argumentative</option>
           <option value="analytical">Analytical</option>
-          <option value="expository">Expository</option>
           <option value="compare_contrast">Compare & Contrast</option>
-          <option value="narrative">Narrative Academic</option>
+          <option value="expository">Expository</option>
           <option value="persuasive">Persuasive</option>
-          <option value="descriptive">Descriptive</option>
+          <option value="critical">Critical Analysis</option>
+          <option value="narrative">Narrative</option>
         </select>
       </div>
     </div>
 
     <div class="field">
-      <label>Topic / Question</label>
-      <input type="text" id="topic" placeholder="e.g. The impact of social media on mental health in college students" />
+      <span class="label">Extra notes <span style="font-size:12px;color:var(--text3);font-weight:400">— specific angle, course requirements, what to include or avoid</span></span>
+      <textarea id="notes" rows="2" placeholder="e.g. Focus on studies from 2018–2024. My professor wants a strong counter-argument section. Use APA format."></textarea>
     </div>
 
     <div class="field">
-      <label>Context <span>(background info, specific angle, scope)</span></label>
-      <textarea id="context_input" rows="2" placeholder="e.g. Focus on Gen Z students aged 18–24 in the United States. Include both short-form and long-form content platforms. The essay is for a sociology course."></textarea>
-    </div>
-
-    <div class="field">
-      <label>Additional Instructions <span>(formatting, structure, requirements)</span></label>
-      <textarea id="instructions" rows="2" placeholder="e.g. Use APA 7th edition. Include a methodology section. Avoid passive voice. Add a counter-argument paragraph."></textarea>
-    </div>
-
-    <!-- Collapsible: Style & Persona -->
-    <button class="section-toggle" onclick="toggleSection('style-section',this)">
-      <span>Style & Persona</span>
-      <span class="chevron">▼</span>
-    </button>
-    <div id="style-section" class="section-body" style="max-height:0">
-      <div style="padding:0.75rem 0 0.5rem">
-        <div class="row2">
-          <div>
-            <label>Tone / Voice</label>
-            <select id="tone">
-              <option value="">Standard Academic</option>
-              <option value="formal_british">Formal British</option>
-              <option value="conversational_academic">Conversational Academic</option>
-              <option value="critical">Critical / Evaluative</option>
-              <option value="objective">Objective / Neutral</option>
-              <option value="passionate">Engaged / Passionate</option>
-            </select>
-          </div>
-          <div>
-            <label>Citation Style</label>
-            <select id="citation_style">
-              <option value="APA 7th">APA 7th Edition</option>
-              <option value="MLA 9th">MLA 9th Edition</option>
-              <option value="Chicago 17th">Chicago 17th Edition</option>
-              <option value="Harvard">Harvard</option>
-              <option value="Vancouver">Vancouver</option>
-            </select>
-          </div>
-        </div>
-        <div class="field">
-          <label>Persona / Past Essay <span>(paste a sample of your own writing so the AI matches your voice)</span></label>
-          <textarea id="persona_text" rows="3" placeholder="Paste 1–3 paragraphs of your own writing here. The AI will match your sentence structure, vocabulary level, and tone..."></textarea>
-        </div>
-        <div class="field">
-          <label>Upload Reference Files <span>(.pdf, .docx, .txt — past essays, lecture notes, source material)</span></label>
-          <div class="upload-zone" id="upload-zone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-            <input type="file" id="file-input" multiple accept=".pdf,.docx,.txt,.md" onchange="handleFileSelect(event)">
-            <div class="uz-icon">📎</div>
-            <p>Drop files here or click to browse</p>
-            <p style="font-size:11px;color:var(--text3);margin-top:3px">PDF, DOCX, TXT, MD — max 5 files</p>
-          </div>
-          <div id="file-chips" style="margin-top:0.35rem"></div>
+      <span class="label">Upload files <span style="font-size:12px;color:var(--text3);font-weight:400">— lecture notes, readings, past drafts to reference</span></span>
+      <div class="upload-zone" id="uz" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <input type="file" id="file-input" multiple accept=".pdf,.docx,.txt,.md" onchange="onFileSelect(event)">
+        <div class="upload-zone-inner">
+          <div style="font-size:22px">📎</div>
+          <p>Click to browse or drag files here</p>
+          <p class="sub">PDF, DOCX, TXT — up to 5 files</p>
         </div>
       </div>
+      <div class="chips-list" id="file-chips"></div>
     </div>
 
-    <!-- Collapsible: Options -->
-    <button class="section-toggle" onclick="toggleSection('options-section',this)">
-      <span>Options</span>
-      <span class="chevron">▼</span>
-    </button>
-    <div id="options-section" class="section-body" style="max-height:0">
-      <div style="padding:0.6rem 0 0.4rem">
-        <div class="toggle-row">
-          <div>
-            <div style="font-size:13px;font-weight:500">Push to Notion</div>
-            <div style="font-size:11px;color:var(--text3)">Send finished essay to your Notion database</div>
-          </div>
-          <button class="toggle" id="notion-toggle" onclick="this.classList.toggle('on')"></button>
-        </div>
-        <div class="toggle-row">
-          <div>
-            <div style="font-size:13px;font-weight:500">Show Research Collected</div>
-            <div style="font-size:11px;color:var(--text3)">Display all sources pulled before writing</div>
-          </div>
-          <button class="toggle on" id="research-toggle" onclick="this.classList.toggle('on')"></button>
-        </div>
-      </div>
-    </div>
-
-    <div style="display:flex;justify-content:flex-end;margin-top:0.75rem">
-      <button class="btn btn-primary" id="generate-btn" onclick="generateEssay()">Generate Essay →</button>
+    <div class="gen-bar">
+      <div class="gen-note" id="settings-check"></div>
+      <button class="btn btn-primary" id="gen-btn" onclick="generate()">Generate Essay →</button>
     </div>
   </div>
 
   <!-- Progress -->
-  <div id="job-card" class="card" style="display:none">
-    <div class="card-title">Generation Progress</div>
-    <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.6rem">
-      <span id="job-badge" class="badge badge-queued">Queued</span>
-      <span id="job-step" style="font-size:12px;color:var(--text2)">Starting…</span>
+  <div class="progress-card" id="prog-card" style="display:none">
+    <div class="status-row">
+      <span class="badge b-queued" id="prog-badge">Queued</span>
+      <span class="status-msg" id="prog-msg">Starting…</span>
     </div>
-    <div class="progress-bar"><div class="progress-fill" id="job-progress-fill" style="width:5%"></div></div>
-    <div id="job-stats" style="font-size:11px;color:var(--text3);margin-top:0.35rem"></div>
+    <div class="pbar"><div class="pfill" id="prog-bar" style="width:5%"></div></div>
+    <div class="status-detail" id="prog-detail"></div>
   </div>
 
-  <!-- Research collected panel (shows before essay) -->
-  <div id="research-card" class="card" style="display:none">
-    <div class="card-title">Research Collected</div>
-    <div id="research-preview"></div>
+  <!-- Research collected -->
+  <div class="research-card" id="research-card" style="display:none">
+    <div class="card-label">Research Collected</div>
+    <div id="research-body"></div>
   </div>
 
   <!-- Result -->
-  <div id="result-card" class="card" style="display:none">
-    <div class="card-title">Essay Complete</div>
-    <div class="stat-row" id="result-stats"></div>
+  <div class="result-card" id="result-card" style="display:none">
+    <div class="stats-row" id="result-stats"></div>
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('content',this)">Essay</button>
-      <button class="tab" onclick="switchTab('research',this)">Research Used</button>
-      <button class="tab" onclick="switchTab('citations',this)">References</button>
+      <button class="tab on" onclick="tab('essay',this)">Essay</button>
+      <button class="tab" onclick="tab('sources',this)">Sources Used</button>
+      <button class="tab" onclick="tab('refs',this)">References</button>
     </div>
-    <div id="tab-content"><div id="essay-text" class="essay-content"></div></div>
-    <div id="tab-research" style="display:none"><div id="research-list"></div></div>
-    <div id="tab-citations" style="display:none"><div id="citations-list"></div></div>
-    <div style="display:flex;gap:0.45rem;flex-wrap:wrap;margin-top:0.85rem">
-      <button class="btn btn-sm btn-primary" onclick="downloadEssay('docx')">Download DOCX</button>
-      <button class="btn btn-sm" onclick="downloadEssay('txt')">Download TXT</button>
-      <button class="btn btn-sm" onclick="checkOriginality()">Check Originality</button>
+    <div id="tab-essay"><div class="essay-body" id="essay-text"></div></div>
+    <div id="tab-sources" style="display:none"><div id="sources-body"></div></div>
+    <div id="tab-refs" style="display:none"><div id="refs-body"></div></div>
+    <div class="btn-row" style="margin-top:1.1rem;padding-top:1.1rem;border-top:0.5px solid var(--border)">
+      <button class="btn btn-sm btn-primary" onclick="dl('docx')">↓ Download DOCX</button>
+      <button class="btn btn-sm" onclick="dl('txt')">↓ Download TXT</button>
       <button class="btn btn-sm" onclick="copyEssay()">Copy Text</button>
+      <button class="btn btn-sm" onclick="checkCurrent()">Check Originality</button>
     </div>
   </div>
 </div>
 
-<!-- HISTORY PAGE -->
-<div id="page-history" class="page">
-  <h2 style="font-size:19px;font-weight:600;margin-bottom:1.25rem;letter-spacing:-0.3px">My Essays</h2>
-  <button class="btn btn-sm" onclick="loadHistory()" style="margin-bottom:0.75rem">Refresh</button>
-  <div id="history-list"></div>
+<!-- MY ESSAYS -->
+<div id="pg-essays" class="page">
+  <div class="page-title">My Essays</div>
+  <div class="page-sub">All your generated essays.</div>
+  <button class="btn btn-sm" onclick="loadHistory()" style="margin-bottom:1rem">Refresh</button>
+  <div id="history-body"></div>
 </div>
 
-<!-- ORIGINALITY PAGE -->
-<div id="page-check" class="page">
-  <h2 style="font-size:19px;font-weight:600;margin-bottom:1.25rem;letter-spacing:-0.3px">Originality Check</h2>
+<!-- CHECK -->
+<div id="pg-check" class="page">
+  <div class="page-title">Originality Check</div>
+  <div class="page-sub">Paste any text to check for AI content probability.</div>
   <div class="card">
-    <div class="card-title">Paste Text to Analyze</div>
     <div class="field">
-      <textarea id="check-text" rows="8" placeholder="Paste essay text here…"></textarea>
+      <textarea id="check-text" rows="8" placeholder="Paste your essay text here…"></textarea>
     </div>
-    <button class="btn btn-primary" onclick="runDirectCheck()">Analyze</button>
+    <button class="btn btn-primary" onclick="checkDirect()">Analyze Text</button>
   </div>
-  <div id="check-results"></div>
+  <div id="check-result"></div>
 </div>
 
-<!-- SETTINGS PAGE -->
-<div id="page-settings" class="page">
-  <h2 style="font-size:19px;font-weight:600;margin-bottom:1.25rem;letter-spacing:-0.3px">Settings</h2>
+<!-- SETTINGS -->
+<div id="pg-settings" class="page">
+  <div class="page-title">Settings</div>
+  <div class="page-sub">Set your preferences once. They'll apply to every essay you generate.</div>
+
   <div class="card">
-    <div class="card-title">Connection</div>
+    <div class="s-head">Your Writing Voice</div>
     <div class="field">
-      <label>API Base URL</label>
-      <input type="text" id="api-url" placeholder="https://your-app.railway.app" />
+      <span class="label">Your writing sample</span>
+      <textarea id="s-persona" rows="5" placeholder="Paste 2–3 paragraphs of your own writing here. The AI will match your vocabulary, sentence rhythm, and tone in every essay it writes for you.&#10;&#10;The more you paste, the better it captures your voice."></textarea>
+      <div class="hint">This is saved locally and injected into every essay automatically. You never need to paste it again.</div>
     </div>
-    <button class="btn btn-primary" onclick="saveSettings()">Save</button>
-    <span id="settings-msg" style="font-size:12px;color:var(--success);margin-left:0.5rem"></span>
-  </div>
-  <div class="card">
-    <div class="card-title">About</div>
-    <p style="font-size:13px;color:var(--text2);line-height:1.7">Academic Essay Agent uses Gemini 2.5 Flash + CrossRef, OpenAlex, and Semantic Scholar to write verified, citation-backed essays. No hallucinated sources.</p>
+    <div class="field">
+      <span class="label">Upload a past essay <span style="font-size:12px;color:var(--text3);font-weight:400">optional — for voice matching</span></span>
+      <div class="upload-zone" id="persona-uz" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onPersonaDrop(event)">
+        <input type="file" id="persona-file" accept=".pdf,.docx,.txt" onchange="onPersonaFile(event)">
+        <div class="upload-zone-inner">
+          <div style="font-size:22px">📄</div>
+          <p id="persona-file-name">Click to upload your past essay</p>
+          <p class="sub">PDF, DOCX, TXT</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="s-head">Writing Defaults</div>
+    <div class="grid2">
+      <div class="field">
+        <span class="label">Default citation style</span>
+        <select id="s-citation">
+          <option value="APA 7th">APA 7th Edition</option>
+          <option value="MLA 9th">MLA 9th Edition</option>
+          <option value="Chicago 17th">Chicago 17th</option>
+          <option value="Harvard">Harvard</option>
+          <option value="Vancouver">Vancouver</option>
+        </select>
+      </div>
+      <div class="field">
+        <span class="label">Default tone</span>
+        <select id="s-tone">
+          <option value="">Standard Academic</option>
+          <option value="formal">Formal</option>
+          <option value="conversational_academic">Conversational Academic</option>
+          <option value="critical">Critical & Evaluative</option>
+          <option value="objective">Strictly Objective</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="s-head">Connection</div>
+    <div class="field">
+      <span class="label">API URL</span>
+      <input type="text" id="s-api" placeholder="https://your-app.railway.app">
+      <div class="hint">Leave blank if you're on the same domain.</div>
+    </div>
+    <div class="field">
+      <span class="label">Push finished essays to Notion automatically?</span>
+      <select id="s-notion">
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
+      </select>
+    </div>
+
+    <div style="margin-top:1.25rem">
+      <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      <span id="save-msg" style="font-size:13px;color:var(--success);margin-left:0.75rem"></span>
+    </div>
   </div>
 </div>
 
@@ -372,337 +396,328 @@ select{cursor:pointer}
 </div>
 
 <script>
-let currentJobId=null, pollInterval=null, currentEssay=null, uploadedFiles=[];
-let apiBase=localStorage.getItem('api_base')||'';
+// State
+let jobId=null, poll=null, essay=null, files=[], personaFileText='';
+const S = key => localStorage.getItem('ew_'+key) || '';
+const SS = (key,val) => localStorage.setItem('ew_'+key, val);
+const api = () => S('api') || window.location.origin;
 
-function getBase(){return apiBase||window.location.origin}
-
-function showPage(n,btn){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+n).classList.add('active');
-  if(btn)btn.classList.add('active');
-  if(n==='history')loadHistory();
+// Nav
+function go(page, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+page).classList.add('on');
+  if(btn) btn.classList.add('on');
+  if(page==='essays') loadHistory();
 }
 
-function switchTab(n,btn){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tab-content').style.display=n==='content'?'':'none';
-  document.getElementById('tab-research').style.display=n==='research'?'':'none';
-  document.getElementById('tab-citations').style.display=n==='citations'?'':'none';
+// Chips
+function selectChip(el, groupId){
+  document.querySelectorAll('#'+groupId+' .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+function getChip(groupId){
+  const el=document.querySelector('#'+groupId+' .chip.on');
+  return el ? el.dataset.val : 'bachelor';
 }
 
-function toggleSection(id,btn){
-  const el=document.getElementById(id);
-  const chevron=btn.querySelector('.chevron');
-  if(el.style.maxHeight==='0px'||el.style.maxHeight==='0'){
-    el.style.maxHeight=el.scrollHeight+'px';
-    chevron.classList.add('open');
-  } else {
-    el.style.maxHeight='0';
-    chevron.classList.remove('open');
-  }
+// Tab
+function tab(name, btn){
+  ['essay','sources','refs'].forEach(n=>{
+    document.getElementById('tab-'+n).style.display=n===name?'':'none';
+  });
+  document.querySelectorAll('.tabs .tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
 }
 
-// File handling
-function handleDragOver(e){e.preventDefault();document.getElementById('upload-zone').classList.add('dragover')}
-function handleDragLeave(e){document.getElementById('upload-zone').classList.remove('dragover')}
-function handleDrop(e){
-  e.preventDefault();
-  document.getElementById('upload-zone').classList.remove('dragover');
-  addFiles(e.dataTransfer.files);
+// Files
+function onDragOver(e){e.preventDefault();document.getElementById('uz').classList.add('drag')}
+function onDragLeave(){document.getElementById('uz').classList.remove('drag')}
+function onDrop(e){e.preventDefault();document.getElementById('uz').classList.remove('drag');addFiles(e.dataTransfer.files)}
+function onFileSelect(e){addFiles(e.target.files)}
+function addFiles(list){
+  Array.from(list).forEach(f=>{
+    if(files.length>=5||files.find(x=>x.name===f.name))return;
+    files.push(f);
+  });
+  renderFiles();
 }
-function handleFileSelect(e){addFiles(e.target.files)}
-function addFiles(fileList){
-  Array.from(fileList).forEach(f=>{
-    if(uploadedFiles.length>=5)return;
-    if(!uploadedFiles.find(u=>u.name===f.name)){
-      uploadedFiles.push(f);
+function removeFile(name){files=files.filter(f=>f.name!==name);renderFiles()}
+function renderFiles(){
+  document.getElementById('file-chips').innerHTML=files.map(f=>
+    `<span class="file-pill">📄 ${f.name}<button onclick="removeFile('${f.name}')">×</button></span>`
+  ).join('');
+}
+
+// Persona file
+function onPersonaDrop(e){e.preventDefault();if(e.dataTransfer.files[0])readPersonaFile(e.dataTransfer.files[0])}
+function onPersonaFile(e){if(e.target.files[0])readPersonaFile(e.target.files[0])}
+function readPersonaFile(file){
+  const r=new FileReader();
+  r.onload=e=>{
+    personaFileText=e.target.result.substring(0,3000);
+    document.getElementById('persona-file-name').textContent='✓ '+file.name;
+    // Auto-populate persona textarea if empty
+    if(!document.getElementById('s-persona').value){
+      document.getElementById('s-persona').value=personaFileText;
     }
-  });
-  renderFileChips();
-}
-function removeFile(name){
-  uploadedFiles=uploadedFiles.filter(f=>f.name!==name);
-  renderFileChips();
-}
-function renderFileChips(){
-  const el=document.getElementById('file-chips');
-  el.innerHTML=uploadedFiles.map(f=>`
-    <span class="file-chip">📄 ${f.name} <button onclick="removeFile('${f.name}')">×</button></span>
-  `).join('');
+  };
+  r.readAsText(file);
 }
 
-async function readFileText(file){
-  return new Promise((res,rej)=>{
-    const r=new FileReader();
-    r.onload=e=>res(e.target.result);
-    r.onerror=rej;
-    r.readAsText(file);
-  });
+async function readText(file){
+  return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsText(file)});
 }
 
-async function generateEssay(){
+// Generate
+async function generate(){
   const topic=document.getElementById('topic').value.trim();
-  if(!topic){alert('Please enter a topic.');return;}
+  if(!topic){alert('Please enter your essay topic.');return;}
 
-  const btn=document.getElementById('generate-btn');
-  btn.disabled=true;btn.textContent='Generating…';
-  document.getElementById('job-card').style.display='block';
+  const btn=document.getElementById('gen-btn');
+  btn.disabled=true;btn.textContent='Working…';
+
+  document.getElementById('prog-card').style.display='block';
   document.getElementById('result-card').style.display='none';
   document.getElementById('research-card').style.display='none';
   setStatus('queued','Queued…',5);
 
-  // Build additional context from all inputs
-  const contextInput=document.getElementById('context_input').value.trim();
-  const instructions=document.getElementById('instructions').value.trim();
-  const personaText=document.getElementById('persona_text').value.trim();
-  const tone=document.getElementById('tone').value;
-  const citationStyle=document.getElementById('citation_style').value;
-  const writingStyle=document.getElementById('writing_style').value;
+  // Build instructions from settings + current form
+  const persona=S('persona');
+  const citation=S('citation')||'APA 7th';
+  const tone=S('tone');
+  const notes=document.getElementById('notes').value.trim();
+  const essayStyle=document.getElementById('essay_style').value;
+
+  let instrParts=[];
+  instrParts.push(`Use ${citation} citation format.`);
+  if(essayStyle) instrParts.push(`Essay type: ${essayStyle.replace(/_/g,' ')}.`);
+  if(tone) instrParts.push(`Tone: ${tone.replace(/_/g,' ')}.`);
+  if(notes) instrParts.push(notes);
+  if(persona) instrParts.push(`Match this writing style (adapt, do not copy verbatim): "${persona.substring(0,600)}"`);
 
   // Read uploaded files
   let fileContext='';
-  for(const f of uploadedFiles){
-    try{
-      const text=await readFileText(f);
-      fileContext+=`\n\n[From uploaded file: ${f.name}]\n${text.substring(0,3000)}`;
-    }catch(e){}
+  for(const f of files){
+    try{const t=await readText(f);fileContext+=`\n\n[Reference file: ${f.name}]\n${t.substring(0,2000)}`;}catch(e){}
   }
-
-  // Build combined instructions
-  let combinedInstructions=[];
-  if(citationStyle)combinedInstructions.push(`Use ${citationStyle} citation format.`);
-  if(writingStyle)combinedInstructions.push(`Essay type: ${writingStyle.replace('_',' ')}.`);
-  if(tone)combinedInstructions.push(`Tone: ${tone.replace(/_/g,' ')}.`);
-  if(instructions)combinedInstructions.push(instructions);
-  if(personaText)combinedInstructions.push(`Match this writing style/voice (adapt, don't copy): "${personaText.substring(0,500)}"`);
-
-  // Combine context
-  let combinedContext=contextInput;
-  if(fileContext)combinedContext+=(combinedContext?'\n\n':'')+fileContext;
 
   const payload={
     topic,
-    paper_type:document.getElementById('paper_type').value,
-    language:document.getElementById('language').value,
-    additional_instructions:combinedInstructions.join(' ')||null,
-    context_input:combinedContext||null,
-    push_to_notion:document.getElementById('notion-toggle').classList.contains('on')
+    paper_type: getChip('paper-chips'),
+    language: document.getElementById('language').value,
+    additional_instructions: instrParts.join(' ') || null,
+    context_input: fileContext || null,
+    push_to_notion: S('notion')==='yes'
   };
 
   try{
-    const res=await fetch(getBase()+'/essay/generate',{
-      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
-    });
-    const data=await res.json();
-    if(!data.job_id)throw new Error(data.detail||'No job ID');
-    currentJobId=data.job_id;
-    startPolling();
+    const r=await fetch(api()+'/essay/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const d=await r.json();
+    if(!d.job_id)throw new Error(d.detail||'No job ID returned');
+    jobId=d.job_id;
+    if(poll)clearInterval(poll);
+    poll=setInterval(pollStatus,2500);
   }catch(err){
     setStatus('failed','Error: '+err.message,0);
     btn.disabled=false;btn.textContent='Generate Essay →';
   }
 }
 
-function startPolling(){
-  if(pollInterval)clearInterval(pollInterval);
-  pollInterval=setInterval(pollJob,2500);
-}
-
-async function pollJob(){
-  if(!currentJobId)return;
+async function pollStatus(){
+  if(!jobId)return;
   try{
-    const res=await fetch(getBase()+'/essay/status/'+currentJobId);
-    const job=await res.json();
+    const r=await fetch(api()+'/essay/status/'+jobId);
+    const job=await r.json();
     const msgs={
       queued:'In queue…',
-      researching:'Searching CrossRef, OpenAlex, Semantic Scholar…',
-      writing:'Gemini 2.5 Flash is writing your essay…',
-      pushing_to_notion:'Pushing to Notion…',
+      researching:'Searching academic databases for verified sources…',
+      writing:'Writing your essay…',
+      pushing_to_notion:'Saving to Notion…',
       complete:'Done!',
-      failed:'Failed: '+(job.error||'Unknown error')
+      failed:'Failed — '+(job.error||'unknown error')
     };
     setStatus(job.status,msgs[job.status]||job.status,job.progress||0);
+
     if(job.source_count){
-      document.getElementById('job-stats').textContent=
-        `${job.source_count} verified sources pulled via ${job.research_method||'academic databases'}`;
-      // Show research preview if toggle is on
-      if(document.getElementById('research-toggle').classList.contains('on') && job.sources && job.sources.length){
-        showResearchPreview(job.sources,job.source_count,job.research_method);
-      }
+      document.getElementById('prog-detail').textContent=`${job.source_count} verified sources found`;
+      if(job.sources?.length) showResearch(job.sources,job.source_count,job.research_method);
     }
+
     if(job.status==='complete'){
-      clearInterval(pollInterval);
-      document.getElementById('generate-btn').disabled=false;
-      document.getElementById('generate-btn').textContent='Generate Essay →';
-      await loadResult(currentJobId,job);
+      clearInterval(poll);
+      document.getElementById('gen-btn').disabled=false;
+      document.getElementById('gen-btn').textContent='Generate Essay →';
+      await loadResult(jobId,job);
     } else if(job.status==='failed'){
-      clearInterval(pollInterval);
-      document.getElementById('generate-btn').disabled=false;
-      document.getElementById('generate-btn').textContent='Generate Essay →';
+      clearInterval(poll);
+      document.getElementById('gen-btn').disabled=false;
+      document.getElementById('gen-btn').textContent='Generate Essay →';
     }
-  }catch(e){console.error(e)}
+  }catch(e){}
 }
 
-function showResearchPreview(sources,count,method){
+function setStatus(status,msg,pct){
+  const badge=document.getElementById('prog-badge');
+  const cls={queued:'b-queued',researching:'b-researching',writing:'b-writing',complete:'b-complete',failed:'b-failed',pushing_to_notion:'b-writing'};
+  badge.className='badge '+(cls[status]||'b-queued');
+  badge.textContent=status.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  document.getElementById('prog-msg').textContent=msg;
+  document.getElementById('prog-bar').style.width=pct+'%';
+}
+
+function showResearch(sources,count,method){
   const card=document.getElementById('research-card');
   card.style.display='block';
-  const tags={crossref:'tag-crossref',openalex:'tag-openalex',semanticscholar:'tag-semanticscholar'};
-  const methodParts=(method||'').split('+');
-  const methodBadges=methodParts.map(m=>`<span class="source-tag ${tags[m]||''}">${m}</span>`).join('');
-  document.getElementById('research-preview').innerHTML=`
-    <div style="margin-bottom:0.6rem;font-size:12px;color:var(--text2)">${count} sources collected via ${methodBadges}</div>
-    ${sources.slice(0,10).map((s,i)=>`
-      <div class="research-item">
-        <span style="color:var(--text3)">[${i+1}]</span> ${s}
-      </div>
-    `).join('')}
-    ${sources.length>10?`<div style="font-size:11px;color:var(--text3);padding:0.5rem 0">+ ${sources.length-10} more sources in essay</div>`:''}
-  `;
+  const dbTag=m=>{
+    if(m==='crossref') return '<span class="db-tag db-cr">CrossRef</span>';
+    if(m==='openalex') return '<span class="db-tag db-oa">OpenAlex</span>';
+    if(m==='semanticscholar') return '<span class="db-tag db-ss">Semantic Scholar</span>';
+    return '';
+  };
+  const methods=(method||'').split('+').map(dbTag).join('');
+  document.getElementById('research-body').innerHTML=
+    `<div style="font-size:12px;color:var(--text2);margin-bottom:0.6rem">${count} sources pulled from ${methods}</div>`+
+    sources.slice(0,12).map((s,i)=>
+      `<div class="source-row"><span class="source-num">[${i+1}]</span>${s}</div>`
+    ).join('')+
+    (sources.length>12?`<div style="font-size:11px;color:var(--text3);padding:0.4rem 0">+${sources.length-12} more in essay</div>`:'');
 }
 
-function setStatus(status,message,progress){
-  const badge=document.getElementById('job-badge');
-  badge.className='badge badge-'+status;
-  badge.textContent=status.charAt(0).toUpperCase()+status.slice(1).replace('_',' ');
-  document.getElementById('job-step').textContent=message;
-  document.getElementById('job-progress-fill').style.width=progress+'%';
-}
-
-async function loadResult(jobId,jobData){
+async function loadResult(jid,job){
   try{
-    const res=await fetch(getBase()+'/essay/result/'+jobId);
-    const essay=await res.json();
-    currentEssay=essay;currentEssay.job_id=jobId;
+    const r=await fetch(api()+'/essay/result/'+jid);
+    const e=await r.json();
+    essay=e;essay.job_id=jid;
     document.getElementById('result-card').style.display='block';
     document.getElementById('result-stats').innerHTML=`
-      <div class="stat"><div class="stat-label">Words</div><div class="stat-value">${(essay.word_count||0).toLocaleString()}</div></div>
-      <div class="stat"><div class="stat-label">Sources</div><div class="stat-value">${jobData.source_count||0}</div></div>
-      <div class="stat"><div class="stat-label">Citations</div><div class="stat-value">${(essay.citations||[]).length}</div></div>
-      <div class="stat"><div class="stat-label">Model</div><div class="stat-value" style="font-size:11px;padding-top:4px">${essay.model_used||'gemini'}</div></div>
+      <div class="stat-box"><div class="stat-n">${(e.word_count||0).toLocaleString()}</div><div class="stat-l">Words</div></div>
+      <div class="stat-box"><div class="stat-n">${job.source_count||0}</div><div class="stat-l">Sources</div></div>
+      <div class="stat-box"><div class="stat-n">${(e.citations||[]).length}</div><div class="stat-l">References</div></div>
+      <div class="stat-box"><div class="stat-n" style="font-size:11px;padding-top:3px">${e.model_used||'Gemini'}</div><div class="stat-l">Model</div></div>
     `;
-    document.getElementById('essay-text').textContent=essay.content||'';
-    // Research tab
-    const sources=jobData.sources||[];
-    document.getElementById('research-list').innerHTML=sources.length
-      ? `<div style="font-size:12px;color:var(--text2);margin-bottom:0.5rem">${sources.length} sources verified against academic databases</div>`
-        +sources.map((s,i)=>`<div class="research-item"><span style="color:var(--text3)">[${i+1}]</span> ${s}</div>`).join('')
-      :'<p style="color:var(--text3);font-size:12px">No sources captured.</p>';
-    // Citations tab
-    const cites=essay.citations||[];
-    document.getElementById('citations-list').innerHTML=cites.length
-      ? cites.map((c,i)=>`<div class="research-item"><span style="color:var(--text3)">[${i+1}]</span> ${c}</div>`).join('')
-      :'<p style="color:var(--text3);font-size:12px">References embedded in essay text.</p>';
-    if(jobData.notion_url){
-      const a=document.createElement('div');
-      a.className='badge badge-complete';a.style.marginBottom='0.75rem';
-      a.innerHTML='✓ Pushed to Notion';
-      document.getElementById('result-card').prepend(a);
-    }
+    document.getElementById('essay-text').textContent=e.content||'';
+    const srcs=job.sources||[];
+    document.getElementById('sources-body').innerHTML=srcs.length
+      ? `<div style="font-size:12px;color:var(--text2);margin-bottom:0.6rem">${srcs.length} sources verified</div>`+
+        srcs.map((s,i)=>`<div class="source-row"><span class="source-num">[${i+1}]</span>${s}</div>`).join('')
+      :'<p style="font-size:13px;color:var(--text3)">No sources captured.</p>';
+    const cites=e.citations||[];
+    document.getElementById('refs-body').innerHTML=cites.length
+      ? cites.map((c,i)=>`<div class="source-row"><span class="source-num">[${i+1}]</span>${c}</div>`).join('')
+      :'<p style="font-size:13px;color:var(--text3)">References embedded in essay.</p>';
   }catch(e){console.error(e)}
 }
 
-function downloadEssay(fmt){
-  if(!currentEssay?.job_id)return;
-  window.open(getBase()+'/essay/download/'+currentEssay.job_id+'?format='+fmt,'_blank');
+function dl(fmt){
+  if(!essay?.job_id)return;
+  window.open(api()+'/essay/download/'+essay.job_id+'?format='+fmt,'_blank');
 }
 function copyEssay(){
-  if(!currentEssay)return;
-  navigator.clipboard.writeText(currentEssay.content||'').then(()=>alert('Copied to clipboard!'));
+  if(!essay)return;
+  navigator.clipboard.writeText(essay.content||'').then(()=>{alert('Copied!')});
 }
 
+// History
 async function loadHistory(){
-  const list=document.getElementById('history-list');
-  list.innerHTML='<p style="color:var(--text3);font-size:13px">Loading…</p>';
+  const body=document.getElementById('history-body');
+  body.innerHTML='<p style="color:var(--text3);font-size:13px">Loading…</p>';
   try{
-    const res=await fetch(getBase()+'/essay/list');
-    const data=await res.json();
-    if(!data.jobs||data.jobs.length===0){
-      list.innerHTML='<p style="color:var(--text3);font-size:13px">No essays yet. Generate your first one!</p>';return;
-    }
-    list.innerHTML=data.jobs.reverse().map(j=>`
-      <div class="history-item" onclick="viewFromHistory('${j.job_id}')">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div style="font-size:13px;font-weight:500">${j.title||j.topic}</div>
-          <span class="badge badge-${j.status}">${j.status}</span>
+    const r=await fetch(api()+'/essay/list');
+    const d=await r.json();
+    if(!d.jobs?.length){body.innerHTML='<p style="color:var(--text3);font-size:13px">No essays yet.</p>';return;}
+    const cls={complete:'b-complete',failed:'b-failed',queued:'b-queued'};
+    body.innerHTML=d.jobs.reverse().map(j=>`
+      <div class="h-item" onclick="viewEssay('${j.job_id}')">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div class="h-title">${j.title||j.topic}</div>
+          <span class="badge ${cls[j.status]||'b-queued'}">${j.status}</span>
         </div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">${j.paper_type} · ${(j.word_count||0).toLocaleString()} words</div>
+        <div class="h-meta">${j.paper_type} · ${(j.word_count||0).toLocaleString()} words · ${j.topic}</div>
       </div>
     `).join('');
-  }catch(e){list.innerHTML='<p style="color:var(--danger);font-size:13px">Could not load. Check API connection in Settings.</p>'}
+  }catch(e){body.innerHTML='<p style="color:var(--danger);font-size:13px">Could not load. Check Settings → API URL.</p>'}
 }
 
-async function viewFromHistory(jobId){
-  showPage('generate',document.querySelector('.nav-btn'));
-  currentJobId=jobId;
-  const res=await fetch(getBase()+'/essay/status/'+jobId);
-  const job=await res.json();
-  document.getElementById('job-card').style.display='block';
+async function viewEssay(jid){
+  go('write',document.querySelector('.nav-item'));
+  jobId=jid;
+  const r=await fetch(api()+'/essay/status/'+jid);
+  const job=await r.json();
+  document.getElementById('prog-card').style.display='block';
   setStatus(job.status,'Loaded from history',100);
-  if(job.status==='complete')await loadResult(jobId,job);
+  if(job.sources?.length) showResearch(job.sources,job.source_count,job.research_method);
+  if(job.status==='complete') await loadResult(jid,job);
 }
 
-async function checkOriginality(){
-  if(!currentEssay?.job_id)return;
-  try{
-    const res=await fetch(getBase()+'/check/originality',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({job_id:currentEssay.job_id})
-    });
-    const data=await res.json();
-    renderOriginalityResult(data,'result-card');
-  }catch(e){alert('Check failed: '+e.message)}
+// Originality
+async function checkCurrent(){
+  if(!essay?.job_id)return;
+  const r=await fetch(api()+'/check/originality',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({job_id:essay.job_id})});
+  const d=await r.json();
+  showOrigResult(d,'result-card');
 }
-
-async function runDirectCheck(){
+async function checkDirect(){
   const text=document.getElementById('check-text').value.trim();
   if(!text){alert('Paste some text first.');return;}
-  try{
-    const res=await fetch(getBase()+'/check/originality',{
-      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})
-    });
-    const data=await res.json();
-    renderOriginalityResult(data,'page-check');
-  }catch(e){document.getElementById('check-results').innerHTML=`<div style="color:var(--danger);font-size:13px">Error: ${e.message}</div>`}
+  const r=await fetch(api()+'/check/originality',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+  const d=await r.json();
+  showOrigResult(d,'pg-check');
 }
-
-function renderOriginalityResult(data,containerId){
-  const ai=data.overall||{};
-  const local=data.local_analysis||{};
-  const prob=Math.round((ai.ai_probability||0)*100);
-  const fillColor=prob<30?'var(--success)':prob<60?'var(--warning)':'var(--danger)';
-  const html=`<div class="card" style="margin-top:0.75rem">
-    <div class="card-title">Originality Report</div>
-    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2)">
-      <span>AI Content Risk: <strong>${ai.ai_content_risk||'unknown'}</strong></span>
-      <span>${prob}%</span>
+function showOrigResult(d,containerId){
+  const ai=d.overall||{};const local=d.local_analysis||{};
+  const pct=Math.round((ai.ai_probability||0)*100);
+  const col=pct<30?'var(--success)':pct<60?'var(--warning)':'var(--danger)';
+  const container=document.getElementById(containerId);
+  container.querySelectorAll('.orig-result').forEach(e=>e.remove());
+  const div=document.createElement('div');div.className='orig-result';
+  div.innerHTML=`<div class="card" style="margin-top:0.75rem">
+    <div class="card-label">Originality Report</div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text2)">
+      <span>AI content risk: <strong>${ai.ai_content_risk||'unknown'}</strong></span>
+      <span>${pct}%</span>
     </div>
-    <div class="orig-meter"><div style="height:100%;width:${prob}%;background:${fillColor};border-radius:3px"></div></div>
-    <p style="font-size:12px;color:var(--text2);margin-bottom:0.75rem">${ai.recommendation||''}</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem">
-      <div class="stat"><div class="stat-label">Burstiness</div><div class="stat-value">${(local.burstiness||0).toFixed(2)}</div></div>
-      <div class="stat"><div class="stat-label">Vocab Richness</div><div class="stat-value">${(local.vocabulary_richness||0).toFixed(2)}</div></div>
-      <div class="stat"><div class="stat-label">Sentences</div><div class="stat-value">${local.sentence_count||0}</div></div>
+    <div class="o-bar"><div class="o-fill" style="width:${pct}%;background:${col}"></div></div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:0.75rem">${ai.recommendation||''}</p>
+    <div class="grid3">
+      <div class="stat-box"><div class="stat-n">${(local.burstiness||0).toFixed(2)}</div><div class="stat-l">Burstiness</div></div>
+      <div class="stat-box"><div class="stat-n">${(local.vocabulary_richness||0).toFixed(2)}</div><div class="stat-l">Vocab richness</div></div>
+      <div class="stat-box"><div class="stat-n">${local.sentence_count||0}</div><div class="stat-l">Sentences</div></div>
     </div>
   </div>`;
-  const container=document.getElementById(containerId);
-  container.querySelectorAll('.orig-result').forEach(el=>el.remove());
-  const div=document.createElement('div');div.className='orig-result';div.innerHTML=html;
   container.appendChild(div);
 }
 
+// Settings
 function saveSettings(){
-  apiBase=document.getElementById('api-url').value.trim().replace(/\/$/,'');
-  localStorage.setItem('api_base',apiBase);
-  const msg=document.getElementById('settings-msg');
-  msg.textContent='Saved!';setTimeout(()=>msg.textContent='',2000);
+  SS('persona', document.getElementById('s-persona').value);
+  SS('citation', document.getElementById('s-citation').value);
+  SS('tone', document.getElementById('s-tone').value);
+  SS('api', document.getElementById('s-api').value.trim().replace(/\/$/,''));
+  SS('notion', document.getElementById('s-notion').value);
+  const msg=document.getElementById('save-msg');
+  msg.textContent='✓ Saved';setTimeout(()=>msg.textContent='',2500);
+  checkSettingsNote();
+}
+
+function checkSettingsNote(){
+  const note=document.getElementById('settings-check');
+  if(S('persona')) note.innerHTML='✓ Writing voice loaded from settings';
+  else note.innerHTML='<a href="#" onclick="go(\'settings\',document.querySelectorAll(\'.nav-item\')[3]);return false" style="color:var(--accent-text);font-size:12px">Set your writing voice in Settings →</a>';
 }
 
 window.onload=()=>{
-  const saved=localStorage.getItem('api_base');
-  if(saved)document.getElementById('api-url').value=saved;
+  // Load saved settings into form
+  const fields={
+    's-persona':'persona','s-citation':'citation',
+    's-tone':'tone','s-api':'api','s-notion':'notion'
+  };
+  Object.entries(fields).forEach(([id,key])=>{
+    const el=document.getElementById(id);
+    const val=S(key);
+    if(el&&val) el.value=val;
+  });
+  checkSettingsNote();
 };
 </script>
 </body>
