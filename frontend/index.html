@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academic Essay Agent</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f9f9f7;
+      --surface: #ffffff;
+      --surface2: #f3f2ef;
+      --border: rgba(0,0,0,0.1);
+      --border2: rgba(0,0,0,0.2);
+      --text: #1a1a18;
+      --text2: #5a5a56;
+      --text3: #888780;
+      --accent: #4338CA;
+      --accent-bg: #EEF2FF;
+      --accent-text: #3730A3;
+      --success: #059669;
+      --success-bg: #ECFDF5;
+      --warning: #D97706;
+      --warning-bg: #FFFBEB;
+      --danger: #DC2626;
+      --danger-bg: #FEF2F2;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #18181a;
+        --surface: #24242a;
+        --surface2: #2e2e36;
+        --border: rgba(255,255,255,0.1);
+        --border2: rgba(255,255,255,0.2);
+        --text: #f0f0ee;
+        --text2: #a0a09c;
+        --text3: #6a6a66;
+        --accent: #818CF8;
+        --accent-bg: #1e1b4b;
+        --accent-text: #a5b4fc;
+        --success-bg: #064e3b;
+        --warning-bg: #451a03;
+        --danger-bg: #450a0a;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* Layout */
+    .app { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 260px;
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 0.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      overflow-y: auto;
+    }
+
+    .main {
+      margin-left: 260px;
+      flex: 1;
+      max-width: 900px;
+      padding: 2rem;
+    }
+
+    /* Sidebar */
+    .logo {
+      padding: 1.25rem 1.25rem 1rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .logo h1 {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+    .logo p { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+    .nav-section { padding: 1rem 0.75rem 0.5rem; }
+    .nav-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text3); padding: 0 0.5rem 0.5rem; }
+
+    .nav-btn {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      background: none;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      text-align: left;
+      font-size: 14px;
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.15s;
+    }
+    .nav-btn:hover { background: var(--surface2); color: var(--text); }
+    .nav-btn.active { background: var(--accent-bg); color: var(--accent-text); font-weight: 500; }
+
+    .icon { width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text2);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    /* Form elements */
+    label { display: block; font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 0.4rem; }
+
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      background: var(--surface2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border 0.15s;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    select { cursor: pointer; }
+
+    .form-row { margin-bottom: 1rem; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+
+    /* Buttons */
+    .btn {
+      padding: 0.6rem 1.25rem;
+      border-radius: var(--radius-sm);
+      border: 0.5px solid var(--border2);
+      background: none;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      font-family: inherit;
+    }
+    .btn:hover { background: var(--surface2); }
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-primary:hover { opacity: 0.9; background: var(--accent); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-sm { padding: 0.35rem 0.75rem; font-size: 13px; }
+
+    /* Progress */
+    .progress-bar {
+      height: 4px;
+      background: var(--surface2);
+      border-radius: 2px;
+      overflow: hidden;
+      margin: 0.75rem 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+
+    /* Status badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .badge-queued { background: var(--surface2); color: var(--text2); }
+    .badge-researching { background: var(--warning-bg); color: var(--warning); }
+    .badge-writing { background: var(--accent-bg); color: var(--accent-text); }
+    .badge-complete { background: var(--success-bg); color: var(--success); }
+    .badge-failed { background: var(--danger-bg); color: var(--danger); }
+
+    /* Essay result */
+    .essay-content {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--text);
+      white-space: pre-wrap;
+      font-family: Georgia, 'Times New Roman', serif;
+      max-height: 600px;
+      overflow-y: auto;
+      padding: 1rem;
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+    }
+
+    .stat-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .stat {
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 1rem;
+    }
+    .stat-label { font-size: 11px; color: var(--text3); }
+    .stat-value { font-size: 18px; font-weight: 600; color: var(--text); }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 0.25rem; margin-bottom: 1.25rem; border-bottom: 0.5px solid var(--border); }
+    .tab {
+      padding: 0.5rem 1rem;
+      border: none;
+      background: none;
+      color: var(--text2);
+      font-size: 14px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -0.5px;
+      font-family: inherit;
+    }
+    .tab.active { color: var(--accent-text); border-bottom-color: var(--accent); font-weight: 500; }
+
+    /* History list */
+    .history-item {
+      padding: 0.75rem;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .history-item:hover { background: var(--surface2); }
+    .history-title { font-size: 14px; font-weight: 500; }
+    .history-meta { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+    /* Originality meter */
+    .orig-meter {
+      height: 8px;
+      background: var(--surface2);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+    .orig-fill-low { background: #059669; }
+    .orig-fill-mod { background: #D97706; }
+    .orig-fill-high { background: #DC2626; }
+
+    /* Alert */
+    .alert {
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      margin-bottom: 1rem;
+    }
+    .alert-info { background: var(--accent-bg); color: var(--accent-text); }
+    .alert-success { background: var(--success-bg); color: var(--success); }
+    .alert-danger { background: var(--danger-bg); color: var(--danger); }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* Sources list */
+    .source-item {
+      font-size: 12px;
+      color: var(--text2);
+      padding: 0.4rem 0;
+      border-bottom: 0.5px solid var(--border);
+      font-family: 'Courier New', monospace;
+    }
+
+    /* Toggle */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; }
+    .toggle {
+      width: 36px;
+      height: 20px;
+      background: var(--border2);
+      border-radius: 10px;
+      position: relative;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .toggle.on { background: var(--accent); }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: white;
+      top: 2px; left: 2px;
+      transition: left 0.2s;
+    }
+    .toggle.on::after { left: 18px; }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 1rem; }
+      .form-row-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="logo">
+      <h1>Essay Agent</h1>
+      <p>Academic Writing AI</p>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Write</div>
+      <button class="nav-btn active" onclick="showPage('generate', this)">
+        <span class="icon">✏️</span> Generate Essay
+      </button>
+      <button class="nav-btn" onclick="showPage('history', this)">
+        <span class="icon">📋</span> My Essays
+      </button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Tools</div>
+      <button class="nav-btn" onclick="showPage('check', this)">
+        <span class="icon">🔍</span> Originality Check
+      </button>
+      <button class="nav-btn" onclick="showPage('settings', this)">
+        <span class="icon">⚙️</span> Settings
+      </button>
+    </div>
+    <div style="margin-top: auto; padding: 1rem; font-size: 11px; color: var(--text3); border-top: 0.5px solid var(--border);">
+      Sources: CrossRef · OpenAlex<br>Semantic Scholar · arXiv
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main class="main">
+
+    <!-- Generate Page -->
+    <div id="page-generate" class="page active">
+      <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 1.5rem; letter-spacing: -0.4px;">Generate Essay</h2>
+
+      <div class="card">
+        <div class="card-title">Essay Details</div>
+
+        <div class="form-row">
+          <label>Topic / Question</label>
+          <input type="text" id="topic" placeholder="e.g. The impact of social media on mental health in college students" />
+        </div>
+
+        <div class="form-row-2">
+          <div>
+            <label>Paper Type</label>
+            <select id="paper_type">
+              <option value="research_paper">Research Paper (2–3k words)</option>
+              <option value="bachelor" selected>Bachelor's Level (3–5k words)</option>
+              <option value="master">Master's Level (5–8k words)</option>
+            </select>
+          </div>
+          <div>
+            <label>Language</label>
+            <select id="language">
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="pt">Portuguese</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label>Additional Instructions <span style="color: var(--text3); font-weight: 400;">(optional)</span></label>
+          <textarea id="instructions" placeholder="e.g. Focus on quantitative studies. Use APA 7th edition. Include a section on Gen Z specifically."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="toggle-row">
+            <div>
+              <div style="font-size: 13px; font-weight: 500;">Push to Notion</div>
+              <div style="font-size: 12px; color: var(--text3);">Send finished essay to your Notion database</div>
+            </div>
+            <button class="toggle" id="notion-toggle" onclick="this.classList.toggle('on')"></button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
+          <button class="btn btn-primary" id="generate-btn" onclick="generateEssay()">
+            Generate Essay →
+          </button>
+        </div>
+      </div>
+
+      <!-- Job progress -->
+      <div id="job-card" class="card" style="display:none;">
+        <div class="card-title">Generation Progress</div>
+        <div id="job-status-row" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+          <span id="job-badge" class="badge badge-queued">Queued</span>
+          <span id="job-step" style="font-size: 13px; color: var(--text2);">Starting...</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="job-progress-fill" style="width: 5%"></div>
+        </div>
+        <div id="job-stats" style="font-size: 12px; color: var(--text3); margin-top: 0.5rem;"></div>
+      </div>
+
+      <!-- Essay result -->
+      <div id="result-card" class="card" style="display:none;">
+        <div class="card-title">Essay Complete</div>
+
+        <div class="stat-row" id="result-stats"></div>
+
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('content', this)">Essay</button>
+          <button class="tab" onclick="switchTab('sources', this)">Sources</button>
+          <button class="tab" onclick="switchTab('citations', this)">References</button>
+        </div>
+
+        <div id="tab-content">
+          <div id="essay-text" class="essay-content"></div>
+        </div>
+
+        <div id="tab-sources" style="display:none;">
+          <div id="sources-list"></div>
+        </div>
+
+        <div id="tab-citations" style="display:none;">
+          <div id="citations-list"></div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
+          <button class="btn btn-sm btn-primary" onclick="downloadEssay('docx')">Download DOCX</button>
+          <button class="btn btn-sm" onclick="downloadEssay('txt')">Download TXT</button>
+          <button class="btn btn-sm" onclick="checkOriginality()">Check Originality</button>
+          <button class="btn btn-sm" onclick="copyEssay()">Copy Text</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Page -->
+    <div id="page-history" class="page">
+      <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 1.5rem; letter-spacing: -0.4px;">My Essays</h2>
+      <button class="btn btn-sm" onclick="loadHistory()" style="margin-bottom: 1rem;">Refresh</button>
+      <div id="history-list"></div>
+    </div>
+
+    <!-- Originality Check Page -->
+    <div id="page-check" class="page">
+      <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 1.5rem; letter-spacing: -0.4px;">Originality Check</h2>
+      <div class="card">
+        <div class="card-title">Paste or Check Essay</div>
+        <div class="form-row">
+          <label>Text to check</label>
+          <textarea id="check-text" placeholder="Paste essay text here..." style="min-height: 160px;"></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="runDirectCheck()">Analyze</button>
+      </div>
+      <div id="check-results"></div>
+    </div>
+
+    <!-- Settings Page -->
+    <div id="page-settings" class="page">
+      <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 1.5rem; letter-spacing: -0.4px;">Settings</h2>
+      <div class="card">
+        <div class="card-title">API Configuration</div>
+        <div class="form-row">
+          <label>API Base URL</label>
+          <input type="text" id="api-url" placeholder="https://your-app.railway.app" />
+        </div>
+        <div class="form-row">
+          <label>API Key <span style="color: var(--text3); font-weight: 400;">(if you added auth)</span></label>
+          <input type="text" id="api-key" placeholder="optional" />
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+        <div id="settings-msg" style="margin-top: 0.5rem; font-size: 13px; color: var(--success);"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">About</div>
+        <p style="font-size: 13px; color: var(--text2); line-height: 1.7;">
+          Academic Essay Agent uses Claude to write bachelor and master level papers with verified citations from CrossRef, OpenAlex, and Semantic Scholar. No hallucinated sources.
+        </p>
+        <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-queued">CrossRef</span>
+          <span class="badge badge-queued">OpenAlex</span>
+          <span class="badge badge-queued">Semantic Scholar</span>
+          <span class="badge badge-queued">Claude AI</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // State
+  let currentJobId = null;
+  let pollInterval = null;
+  let currentEssay = null;
+  let apiBase = localStorage.getItem('api_base') || '';
+
+  function getApiBase() {
+    return apiBase || window.location.origin;
+  }
+
+  // Navigation
+  function showPage(name, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    if (btn) btn.classList.add('active');
+    if (name === 'history') loadHistory();
+  }
+
+  // Tabs
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-content').style.display = name === 'content' ? '' : 'none';
+    document.getElementById('tab-sources').style.display = name === 'sources' ? '' : 'none';
+    document.getElementById('tab-citations').style.display = name === 'citations' ? '' : 'none';
+  }
+
+  // Generate
+  async function generateEssay() {
+    const topic = document.getElementById('topic').value.trim();
+    if (!topic) { alert('Please enter a topic.'); return; }
+
+    const btn = document.getElementById('generate-btn');
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+
+    document.getElementById('job-card').style.display = 'block';
+    document.getElementById('result-card').style.display = 'none';
+    setJobStatus('queued', 'Queued...', 5);
+
+    const payload = {
+      topic,
+      paper_type: document.getElementById('paper_type').value,
+      language: document.getElementById('language').value,
+      additional_instructions: document.getElementById('instructions').value || null,
+      push_to_notion: document.getElementById('notion-toggle').classList.contains('on')
+    };
+
+    try {
+      const res = await fetch(getApiBase() + '/essay/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!data.job_id) throw new Error(data.detail || 'No job ID returned');
+
+      currentJobId = data.job_id;
+      startPolling();
+
+    } catch (err) {
+      setJobStatus('failed', 'Error: ' + err.message, 0);
+      btn.disabled = false;
+      btn.textContent = 'Generate Essay →';
+    }
+  }
+
+  function startPolling() {
+    if (pollInterval) clearInterval(pollInterval);
+    pollInterval = setInterval(pollJob, 2500);
+  }
+
+  async function pollJob() {
+    if (!currentJobId) return;
+    try {
+      const res = await fetch(getApiBase() + '/essay/status/' + currentJobId);
+      const job = await res.json();
+
+      const stepMessages = {
+        queued: 'In queue...',
+        researching: 'Searching academic databases (CrossRef, OpenAlex, Semantic Scholar)...',
+        writing: 'Claude is writing your essay...',
+        pushing_to_notion: 'Pushing to Notion...',
+        complete: 'Done!',
+        failed: 'Failed: ' + (job.error || 'Unknown error')
+      };
+
+      setJobStatus(job.status, stepMessages[job.status] || job.status, job.progress || 0);
+
+      if (job.source_count) {
+        document.getElementById('job-stats').textContent =
+          `${job.source_count} verified sources found via ${job.research_method || 'academic databases'}`;
+      }
+
+      if (job.status === 'complete') {
+        clearInterval(pollInterval);
+        document.getElementById('generate-btn').disabled = false;
+        document.getElementById('generate-btn').textContent = 'Generate Essay →';
+        await loadResult(currentJobId, job);
+      } else if (job.status === 'failed') {
+        clearInterval(pollInterval);
+        document.getElementById('generate-btn').disabled = false;
+        document.getElementById('generate-btn').textContent = 'Generate Essay →';
+      }
+    } catch (e) {
+      console.error('Poll error:', e);
+    }
+  }
+
+  function setJobStatus(status, message, progress) {
+    const badge = document.getElementById('job-badge');
+    badge.className = 'badge badge-' + status;
+    badge.textContent = status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
+    document.getElementById('job-step').textContent = message;
+    document.getElementById('job-progress-fill').style.width = progress + '%';
+  }
+
+  async function loadResult(jobId, jobData) {
+    try {
+      const res = await fetch(getApiBase() + '/essay/result/' + jobId);
+      const essay = await res.json();
+      currentEssay = essay;
+      currentEssay.job_id = jobId;
+
+      document.getElementById('result-card').style.display = 'block';
+
+      // Stats
+      document.getElementById('result-stats').innerHTML = `
+        <div class="stat"><div class="stat-label">Words</div><div class="stat-value">${(essay.word_count || 0).toLocaleString()}</div></div>
+        <div class="stat"><div class="stat-label">Sources</div><div class="stat-value">${(jobData.source_count || 0)}</div></div>
+        <div class="stat"><div class="stat-label">Citations</div><div class="stat-value">${(essay.citations || []).length}</div></div>
+        <div class="stat"><div class="stat-label">Type</div><div class="stat-value" style="font-size: 13px; padding-top: 4px;">${essay.paper_type || 'bachelor'}</div></div>
+      `;
+
+      document.getElementById('essay-text').textContent = essay.content || '';
+
+      // Sources
+      const sources = jobData.sources || [];
+      document.getElementById('sources-list').innerHTML = sources.length
+        ? sources.map((s, i) => `<div class="source-item">[${i+1}] ${s}</div>`).join('')
+        : '<p style="color: var(--text3); font-size: 13px;">No sources captured.</p>';
+
+      // Citations
+      const citations = essay.citations || [];
+      document.getElementById('citations-list').innerHTML = citations.length
+        ? citations.map((c, i) => `<div class="source-item">[${i+1}] ${c}</div>`).join('')
+        : '<p style="color: var(--text3); font-size: 13px;">References are embedded in the essay text.</p>';
+
+      if (jobData.notion_url) {
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-success';
+        alert.innerHTML = 'Pushed to Notion: <a href="' + jobData.notion_url + '" target="_blank">' + jobData.notion_url + '</a>';
+        document.getElementById('result-card').prepend(alert);
+      }
+
+    } catch (e) {
+      console.error('Load result error:', e);
+    }
+  }
+
+  function downloadEssay(format) {
+    if (!currentEssay || !currentEssay.job_id) return;
+    window.open(getApiBase() + '/essay/download/' + currentEssay.job_id + '?format=' + format, '_blank');
+  }
+
+  function copyEssay() {
+    if (!currentEssay) return;
+    navigator.clipboard.writeText(currentEssay.content || '').then(() => {
+      alert('Essay copied to clipboard!');
+    });
+  }
+
+  async function checkOriginality() {
+    if (!currentEssay || !currentEssay.job_id) return;
+    try {
+      const res = await fetch(getApiBase() + '/check/originality', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ job_id: currentEssay.job_id })
+      });
+      const data = await res.json();
+      showOriginalityResults(data, 'result-card');
+    } catch (e) {
+      alert('Originality check failed: ' + e.message);
+    }
+  }
+
+  function showOriginalityResults(data, containerId) {
+    const ai = data.overall || {};
+    const local = data.local_analysis || {};
+    const aiProb = (ai.ai_probability || 0) * 100;
+    const fillClass = aiProb < 30 ? 'orig-fill-low' : aiProb < 60 ? 'orig-fill-mod' : 'orig-fill-high';
+
+    const html = `
+      <div class="card" style="margin-top: 1rem;">
+        <div class="card-title">Originality Report</div>
+        <div style="margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text2);">
+            <span>AI Content Risk: <strong>${ai.ai_content_risk || 'unknown'}</strong></span>
+            <span>${Math.round(aiProb)}% probability</span>
+          </div>
+          <div class="orig-meter"><div class="orig-fill-${ai.ai_content_risk || 'low'}" style="height: 100%; width: ${aiProb}%; border-radius: 4px;"></div></div>
+          <p style="font-size: 13px; color: var(--text2);">${ai.recommendation || ''}</p>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-top: 0.75rem;">
+          <div class="stat">
+            <div class="stat-label">Burstiness</div>
+            <div class="stat-value">${(local.burstiness || 0).toFixed(2)}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Vocab Richness</div>
+            <div class="stat-value">${(local.vocabulary_richness || 0).toFixed(2)}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Sentences</div>
+            <div class="stat-value">${local.sentence_count || 0}</div>
+          </div>
+        </div>
+        ${data.copyleaks && data.copyleaks.status !== 'not_configured'
+          ? `<div class="alert alert-info" style="margin-top: 1rem;">Copyleaks scan submitted. Check your Copyleaks dashboard for plagiarism results.</div>`
+          : `<div style="margin-top: 0.75rem; font-size: 12px; color: var(--text3);">For certified plagiarism detection, configure Copyleaks in your .env file.</div>`
+        }
+      </div>
+    `;
+
+    const container = document.getElementById(containerId);
+    const existing = container.querySelector('.originality-result');
+    if (existing) existing.remove();
+    const div = document.createElement('div');
+    div.className = 'originality-result';
+    div.innerHTML = html;
+    container.appendChild(div);
+  }
+
+  // History
+  async function loadHistory() {
+    const list = document.getElementById('history-list');
+    list.innerHTML = '<p style="color: var(--text3); font-size: 13px;">Loading...</p>';
+    try {
+      const res = await fetch(getApiBase() + '/essay/list');
+      const data = await res.json();
+      if (!data.jobs || data.jobs.length === 0) {
+        list.innerHTML = '<p style="color: var(--text3); font-size: 13px;">No essays yet. Generate your first one!</p>';
+        return;
+      }
+      list.innerHTML = data.jobs.reverse().map(j => `
+        <div class="history-item" onclick="viewEssayFromHistory('${j.job_id}')">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div class="history-title">${j.title || j.topic}</div>
+            <span class="badge badge-${j.status}">${j.status}</span>
+          </div>
+          <div class="history-meta">${j.paper_type} · ${(j.word_count || 0).toLocaleString()} words · ${j.topic}</div>
+        </div>
+      `).join('');
+    } catch (e) {
+      list.innerHTML = '<p style="color: var(--danger); font-size: 13px;">Could not load. Check API connection in Settings.</p>';
+    }
+  }
+
+  async function viewEssayFromHistory(jobId) {
+    showPage('generate', document.querySelector('.nav-btn'));
+    currentJobId = jobId;
+    const res = await fetch(getApiBase() + '/essay/status/' + jobId);
+    const job = await res.json();
+    document.getElementById('job-card').style.display = 'block';
+    setJobStatus(job.status, 'Loaded from history', 100);
+    if (job.status === 'complete') {
+      await loadResult(jobId, job);
+    }
+  }
+
+  // Direct originality check
+  async function runDirectCheck() {
+    const text = document.getElementById('check-text').value.trim();
+    if (!text) { alert('Paste some text first.'); return; }
+    try {
+      const res = await fetch(getApiBase() + '/check/originality', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      const data = await res.json();
+      const container = document.getElementById('check-results');
+      container.innerHTML = '';
+      const div = document.createElement('div');
+      div.className = 'originality-result';
+      showOriginalityResults(data, 'page-check');
+    } catch (e) {
+      document.getElementById('check-results').innerHTML = `<div class="alert alert-danger">Error: ${e.message}</div>`;
+    }
+  }
+
+  // Settings
+  function saveSettings() {
+    apiBase = document.getElementById('api-url').value.trim().replace(/\/$/, '');
+    localStorage.setItem('api_base', apiBase);
+    document.getElementById('settings-msg').textContent = 'Saved!';
+    setTimeout(() => document.getElementById('settings-msg').textContent = '', 2000);
+  }
+
+  // Init
+  window.onload = () => {
+    const saved = localStorage.getItem('api_base');
+    if (saved) document.getElementById('api-url').value = saved;
+  };
+</script>
+</body>
+</html>
