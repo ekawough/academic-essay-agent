@@ -6,10 +6,5 @@ pydantic>=2.7.0
 python-multipart>=0.0.9
 scikit-learn>=1.4.0
 python-docx>=1.1.0
-google-generativeai>=0.8.0
-
-# Optional — uncomment if needed
-# gpt-researcher>=0.10.0
-# supabase>=2.4.0
-# notion-client>=2.2.1
-# weasyprint>=62.0
+google-genai>=1.0.0
+notion-client>=2.2.1

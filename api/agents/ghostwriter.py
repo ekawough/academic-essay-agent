@@ -1,9 +1,9 @@
 import os
 import re
-from typing import Optional
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 PAPER_CONFIGS = {
     "research_paper": {
@@ -35,45 +35,28 @@ async def write_essay(
 ) -> dict:
     config = PAPER_CONFIGS.get(paper_type, PAPER_CONFIGS["bachelor"])
 
-    system_instruction = f"""You are an expert academic ghostwriter specializing in {paper_type}-level essays.
+    context_section = ""
+    if context:
+        context_section = f"\n\n## Verified Research Context (cite ONLY these sources):\n\n{context[:8000]}\n\n---"
 
-Your writing standards:
+    instructions_section = f"\nAdditional requirements: {additional_instructions}\n" if additional_instructions else ""
+
+    prompt = f"""You are an expert academic ghostwriter specializing in {paper_type}-level essays.
+
+Standards:
 - Tone: {config['tone']}
 - Target length: {config['word_count']} words
 - Structure: {', '.join(config['sections'])}
-- Use proper in-text citations (Author, Year) format for ALL claims
-- Every factual claim must be supported by a citation from the provided research context
-- Do NOT invent citations, DOIs, or authors — only use sources from the research context provided
-- Use formal academic language appropriate for university submission
-- Include smooth transitions between sections
-- Vary sentence structure and length for readability
-- Demonstrate critical thinking, not just description
-- Write a genuine thesis statement in the introduction
+- Use in-text citations (Author, Year) format for ALL claims
+- Only cite sources from the research context provided — do NOT invent citations
+- Formal academic language appropriate for university submission
+- Strong thesis statement in the introduction
+- Smooth transitions between sections
+- Critical thinking throughout, not just description
 
-CRITICAL RULE: Only cite sources that exist in the research context provided.
-If no context is available for a claim, write "further research is needed" or omit the claim.
+CRITICAL: Never invent DOIs, authors, or journals. If no source supports a claim, write "further research is needed" or omit it.
 
-Output format:
-Return the full essay with clear section headers using ## for each section.
-At the very end, include a "## References" section listing all cited sources in APA 7th edition format."""
-
-    context_section = ""
-    if context:
-        context_section = f"""
-
-## Verified Research Context (use ONLY these sources for citations):
-
-{context[:8000]}
-
----"""
-
-    instructions_section = ""
-    if additional_instructions:
-        instructions_section = f"\nAdditional requirements: {additional_instructions}\n"
-
-    prompt = f"""{system_instruction}
-
-Write a {config['description']}
+Output: Full essay with ## section headers. End with ## References in APA 7th edition.
 
 Topic: {topic}
 Paper type: {paper_type}
@@ -81,89 +64,68 @@ Language: {language}
 {instructions_section}
 {context_section}
 
-Write the complete essay now. Begin with the Abstract section."""
+Write the complete essay now, starting with the Abstract:"""
 
-    # Use Gemini
-    model = genai.GenerativeModel(
-        model_name="gemini-2.0-flash",
-        generation_config=genai.GenerationConfig(
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt,
+        config=types.GenerateContentConfig(
             max_output_tokens=8192,
             temperature=0.7,
         )
     )
 
-    response = model.generate_content(prompt)
     full_text = response.text
-
-    sections = _parse_sections(full_text)
-    citations = _extract_citations(full_text)
-    word_count = len(full_text.split())
-    title = _extract_title(full_text, topic)
-
     return {
-        "title": title,
+        "title": _extract_title(full_text, topic),
         "content": full_text,
-        "sections": sections,
-        "citations": citations,
-        "word_count": word_count,
+        "sections": _parse_sections(full_text),
+        "citations": _extract_citations(full_text),
+        "word_count": len(full_text.split()),
         "paper_type": paper_type,
         "model_used": "gemini-2.0-flash"
     }
 
-def _parse_sections(text: str) -> list:
+def _parse_sections(text):
     return re.findall(r'^##\s+(.+)$', text, re.MULTILINE)
 
-def _extract_citations(text: str) -> list:
+def _extract_citations(text):
     ref_match = re.search(r'##\s+References?\s*\n([\s\S]+?)(?:##|$)', text, re.IGNORECASE)
     if ref_match:
-        ref_block = ref_match.group(1).strip()
-        return [line.strip() for line in ref_block.split('\n') if line.strip() and not line.strip().startswith('#')]
+        return [l.strip() for l in ref_match.group(1).strip().split('\n') if l.strip() and not l.strip().startswith('#')]
     return []
 
-def _extract_title(text: str, fallback_topic: str) -> str:
-    lines = text.split('\n')
-    for line in lines[:10]:
+def _extract_title(text, fallback):
+    for line in text.split('\n')[:10]:
         line = line.strip()
-        if line and not line.startswith('#') and len(line) > 20 and len(line) < 150:
-            if not any(kw in line.lower() for kw in ['abstract', 'introduction', 'write', 'here']):
+        if line and not line.startswith('#') and 20 < len(line) < 150:
+            if not any(kw in line.lower() for kw in ['abstract', 'introduction', 'write']):
                 return line
-    title_match = re.search(r'^#\s+(.+)$', text, re.MULTILINE)
-    if title_match:
-        return title_match.group(1)
-    return f"Academic Essay: {fallback_topic.title()}"
+    m = re.search(r'^#\s+(.+)$', text, re.MULTILINE)
+    return m.group(1) if m else f"Academic Essay: {fallback.title()}"
 
-def export_essay_docx(title: str, content: str, citations: list) -> bytes:
+def export_essay_docx(title, content, citations):
     try:
         from docx import Document
-        from docx.shared import Pt, Inches
+        from docx.shared import Inches
         from docx.enum.text import WD_ALIGN_PARAGRAPH
         import io
-
         doc = Document()
-        for section in doc.sections:
-            section.top_margin = Inches(1)
-            section.bottom_margin = Inches(1)
-            section.left_margin = Inches(1.25)
-            section.right_margin = Inches(1.25)
-
-        title_para = doc.add_heading(title, 0)
-        title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        for s in doc.sections:
+            s.top_margin = s.bottom_margin = Inches(1)
+            s.left_margin = s.right_margin = Inches(1.25)
+        p = doc.add_heading(title, 0)
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         doc.add_paragraph()
-
         for line in content.split('\n'):
             line = line.strip()
-            if not line:
-                continue
-            if line.startswith('## '):
-                doc.add_heading(line[3:], level=2)
-            elif line.startswith('# '):
-                doc.add_heading(line[2:], level=1)
-            else:
-                doc.add_paragraph(line)
-
-        buffer = io.BytesIO()
-        doc.save(buffer)
-        buffer.seek(0)
-        return buffer.read()
+            if not line: continue
+            if line.startswith('## '): doc.add_heading(line[3:], level=2)
+            elif line.startswith('# '): doc.add_heading(line[2:], level=1)
+            else: doc.add_paragraph(line)
+        buf = io.BytesIO()
+        doc.save(buf)
+        buf.seek(0)
+        return buf.read()
     except ImportError:
         return content.encode('utf-8')
