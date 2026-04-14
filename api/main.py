@@ -4,27 +4,23 @@ from fastapi.responses import HTMLResponse
 import os
 
 from api.routes import essay, check
+from api.routes import stream
 
-app = FastAPI(title="Academic Essay Agent", version="1.0")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app = FastAPI(title="Writer", version="2.0")
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 app.include_router(essay.router, prefix="/essay", tags=["Essay"])
-app.include_router(check.router, prefix="/check", tags=["Originality"])
+app.include_router(check.router, prefix="/check", tags=["Check"])
+app.include_router(stream.router, prefix="/stream", tags=["Stream"])
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
-def serve_frontend():
-    frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend", "index.html")
-    if os.path.exists(frontend_path):
-        with open(frontend_path, "r") as f:
-            return HTMLResponse(content=f.read())
-    return HTMLResponse(content="<h1>Academic Essay Agent</h1><p><a href='/docs'>API Docs</a></p>")
+def serve():
+    path = os.path.join(os.path.dirname(__file__), "..", "frontend", "index.html")
+    if os.path.exists(path):
+        with open(path) as f:
+            return HTMLResponse(f.read())
+    return HTMLResponse("<h1>Writer API</h1><a href='/docs'>Docs</a>")
 
 @app.get("/health")
 def health():
-    return {"status": "running", "version": "1.0"}
+    return {"status": "ok", "version": "2.0"}

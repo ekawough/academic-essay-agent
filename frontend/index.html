@@ -3,721 +3,1798 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Essay Writer</title>
+<title>Writer — AI Writing Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#f7f7f5;--surface:#ffffff;--surface2:#f0efe9;--surface3:#e8e7e0;
-  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.15);
-  --text:#1c1c1a;--text2:#6b6b65;--text3:#9a9a92;
-  --accent:#2563eb;--accent-light:#eff6ff;--accent-text:#1d4ed8;
-  --success:#16a34a;--success-light:#f0fdf4;
-  --danger:#dc2626;--danger-light:#fef2f2;
-  --warning:#d97706;--warning-light:#fffbeb;
-  --r:12px;--r-sm:8px;
-}
-@media(prefers-color-scheme:dark){:root{
-  --bg:#111110;--surface:#1c1c1a;--surface2:#242422;--surface3:#2e2e2b;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
-  --text:#f2f2ee;--text2:#9a9a92;--text3:#5a5a55;
-  --accent:#3b82f6;--accent-light:#172554;--accent-text:#93c5fd;
-  --success-light:#052e16;--danger-light:#450a0a;--warning-light:#431407;
-}}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Layout */
-.shell{display:flex;min-height:100vh}
-.sidebar{width:220px;background:var(--surface);border-right:0.5px solid var(--border);display:flex;flex-direction:column;position:fixed;inset:0 auto 0 0;overflow-y:auto}
-.content{margin-left:220px;flex:1;min-height:100vh}
-
-/* Sidebar */
-.brand{padding:1.25rem 1rem 1rem;border-bottom:0.5px solid var(--border)}
-.brand-name{font-size:15px;font-weight:700;letter-spacing:-0.3px;color:var(--text)}
-.brand-sub{font-size:11px;color:var(--text3);margin-top:1px}
-.nav{padding:0.75rem 0.5rem}
-.nav-item{display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0.65rem;border-radius:var(--r-sm);font-size:13px;color:var(--text2);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:inherit;transition:all 0.1s}
-.nav-item:hover{background:var(--surface2);color:var(--text)}
-.nav-item.on{background:var(--accent-light);color:var(--accent-text);font-weight:500}
-.nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
-.sidebar-footer{margin-top:auto;padding:0.75rem;font-size:10px;color:var(--text3);border-top:0.5px solid var(--border);line-height:1.6}
-
-/* Pages */
-.page{display:none;padding:2rem 2.5rem;max-width:780px}
-.page.on{display:block}
-.page-title{font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-bottom:0.25rem}
-.page-sub{font-size:13px;color:var(--text2);margin-bottom:1.75rem}
-
-/* Cards */
-.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-bottom:1rem}
-.card-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3);margin-bottom:1rem}
-
-/* Form */
-.field{margin-bottom:1rem}
-.field:last-child{margin-bottom:0}
-.label{font-size:13px;font-weight:500;color:var(--text);margin-bottom:0.4rem;display:block}
-.hint{font-size:11px;color:var(--text3);margin-top:0.25rem}
-input,textarea,select{width:100%;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border 0.15s,box-shadow 0.15s}
-input{padding:0.6rem 0.85rem;height:40px}
-textarea{padding:0.7rem 0.85rem;resize:vertical}
-select{padding:0.6rem 0.85rem;height:40px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.75rem center}
-input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem}
-
-/* Big topic input */
-.topic-wrap{position:relative}
-.topic-input{width:100%;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--r);padding:1rem 1.15rem 1rem;font-size:16px;font-family:inherit;color:var(--text);outline:none;resize:none;min-height:72px;transition:border 0.15s,box-shadow 0.15s;line-height:1.55}
-.topic-input::placeholder{color:var(--text3)}
-.topic-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
-
-/* Chips for paper type */
-.chip-row{display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.35rem}
-.chip{padding:0.35rem 0.85rem;border-radius:20px;font-size:13px;font-weight:500;border:1.5px solid var(--border2);background:none;color:var(--text2);cursor:pointer;transition:all 0.1s;font-family:inherit}
-.chip:hover{border-color:var(--accent);color:var(--accent-text)}
-.chip.on{border-color:var(--accent);background:var(--accent-light);color:var(--accent-text)}
-
-/* Upload zone */
-.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--r-sm);padding:1.1rem;text-align:center;cursor:pointer;background:var(--surface2);position:relative;transition:all 0.15s}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:var(--accent-light)}
-.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.upload-zone-inner{pointer-events:none}
-.upload-zone-inner p{font-size:13px;color:var(--text2);margin-top:0.25rem}
-.upload-zone-inner .sub{font-size:11px;color:var(--text3)}
-.chips-list{display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.5rem}
-.file-pill{display:inline-flex;align-items:center;gap:0.3rem;background:var(--surface3);border:0.5px solid var(--border);border-radius:20px;padding:0.2rem 0.55rem 0.2rem 0.65rem;font-size:12px;color:var(--text2)}
-.file-pill button{background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;line-height:1;padding:0;margin-left:1px;display:flex;align-items:center}
-.file-pill button:hover{color:var(--danger)}
-
-/* Buttons */
-.btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0 1.25rem;height:40px;border-radius:var(--r-sm);font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.1s;border:0.5px solid var(--border2);background:none;color:var(--text)}
-.btn:hover{background:var(--surface2)}
-.btn:active{transform:scale(0.98)}
-.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);height:44px;font-size:15px;padding:0 1.5rem}
-.btn-primary:hover{opacity:0.88;background:var(--accent)}
-.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none}
-.btn-sm{height:32px;padding:0 0.85rem;font-size:12px}
-.btn-row{display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center}
-
-/* Generate bar at bottom */
-.gen-bar{display:flex;align-items:center;justify-content:space-between;margin-top:1.25rem;padding-top:1.25rem;border-top:0.5px solid var(--border)}
-.gen-note{font-size:12px;color:var(--text3)}
-
-/* Progress */
-.progress-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-top:1rem}
-.status-row{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.6rem}
-.badge{display:inline-flex;align-items:center;padding:0.2rem 0.6rem;border-radius:20px;font-size:11px;font-weight:600}
-.b-queued{background:var(--surface2);color:var(--text2)}
-.b-researching{background:var(--warning-light);color:var(--warning)}
-.b-writing{background:var(--accent-light);color:var(--accent-text)}
-.b-complete{background:var(--success-light);color:var(--success)}
-.b-failed{background:var(--danger-light);color:var(--danger)}
-.pbar{height:3px;background:var(--surface2);border-radius:2px;overflow:hidden}
-.pfill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.5s ease}
-.status-msg{font-size:13px;color:var(--text2)}
-.status-detail{font-size:11px;color:var(--text3);margin-top:0.4rem}
-
-/* Research panel */
-.research-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-top:1rem}
-.source-row{padding:0.5rem 0;border-bottom:0.5px solid var(--border);font-size:12px;color:var(--text2);line-height:1.55}
-.source-row:last-child{border:none}
-.source-num{color:var(--text3);font-weight:600;margin-right:0.4rem}
-.db-tag{display:inline-flex;font-size:10px;font-weight:600;padding:0.1rem 0.4rem;border-radius:4px;margin-right:0.35rem;vertical-align:middle}
-.db-cr{background:#dbeafe;color:#1e40af}.db-oa{background:#dcfce7;color:#15803d}.db-ss{background:#fae8ff;color:#7e22ce}
-@media(prefers-color-scheme:dark){
-  .db-cr{background:#1e3a5f;color:#93c5fd}.db-oa{background:#14532d;color:#86efac}.db-ss{background:#4a044e;color:#e879f9}
+:root {
+  --ink: #1a1916;
+  --ink2: #5c5b57;
+  --ink3: #9b9a95;
+  --paper: #faf9f6;
+  --surface: #ffffff;
+  --edge: rgba(0,0,0,0.07);
+  --edge2: rgba(0,0,0,0.13);
+  --blue: #2563eb;
+  --blue-dim: rgba(37,99,235,0.08);
+  --blue-glow: rgba(37,99,235,0.15);
+  --green: #16a34a;
+  --green-dim: rgba(22,163,74,0.08);
+  --amber: #d97706;
+  --red: #dc2626;
+  --sidebar-w: 228px;
+  --panel-w: 300px;
+  --r: 10px;
+  --r-sm: 6px;
+  font-size: 15px;
 }
 
-/* Result */
-.result-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-top:1rem}
-.stats-row{display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1.1rem}
-.stat-box{background:var(--surface2);border-radius:var(--r-sm);padding:0.5rem 0.85rem}
-.stat-n{font-size:18px;font-weight:700;color:var(--text);line-height:1.2}
-.stat-l{font-size:10px;color:var(--text3)}
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
 
-/* Tabs */
-.tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:1rem}
-.tab{padding:0.5rem 1rem;border:none;background:none;font-size:13px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-0.5px;font-family:inherit}
-.tab.on{color:var(--accent-text);border-bottom-color:var(--accent);font-weight:500}
+/* ─── SIDEBAR ─────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--edge);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
 
-/* Essay text */
-.essay-body{font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:1.9;color:var(--text);white-space:pre-wrap;max-height:520px;overflow-y:auto;padding:0.5rem 0}
+.brand {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--edge);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-icon {
+  width: 30px; height: 30px;
+  background: var(--ink);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--paper);
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.brand-text { font-size: 14px; font-weight: 600; letter-spacing: -0.3px; }
+.brand-sub { font-size: 11px; color: var(--ink3); }
 
-/* Originality meter */
-.o-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin:0.5rem 0 0.35rem}
-.o-fill{height:100%;border-radius:3px}
+.new-btn {
+  margin: 12px 12px 4px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  background: var(--blue);
+  color: white;
+  border: none; border-radius: var(--r-sm);
+  font-size: 13px; font-weight: 500; font-family: inherit;
+  cursor: pointer; transition: opacity .15s;
+  width: calc(100% - 24px);
+}
+.new-btn:hover { opacity: 0.88; }
+
+.nav-section { padding: 12px 8px 4px; }
+.nav-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--ink3); padding: 0 8px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px; border-radius: var(--r-sm);
+  font-size: 13px; color: var(--ink2);
+  cursor: pointer; border: none; background: none;
+  width: 100%; text-align: left; font-family: inherit;
+  transition: all .12s;
+}
+.nav-item:hover { background: var(--paper); color: var(--ink); }
+.nav-item.active { background: var(--blue-dim); color: var(--blue); font-weight: 500; }
+.nav-item .ni { width: 16px; text-align: center; font-size: 14px; }
+
+.recent-list { padding: 0 8px 8px; }
+.recent-item {
+  padding: 5px 10px; border-radius: var(--r-sm);
+  font-size: 12px; color: var(--ink2);
+  cursor: pointer; truncate: true;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: all .12s;
+}
+.recent-item:hover { background: var(--paper); color: var(--ink); }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 10px 16px;
+  font-size: 10px; color: var(--ink3);
+  border-top: 1px solid var(--edge);
+  line-height: 1.7;
+}
+
+/* ─── MAIN AREA ─────────────────────────────────── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Top bar */
+.topbar {
+  height: 48px;
+  border-bottom: 1px solid var(--edge);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 16px;
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.doc-title-input {
+  font-size: 14px; font-weight: 500;
+  border: none; background: none; outline: none;
+  color: var(--ink); font-family: inherit;
+  flex: 1; min-width: 0;
+  padding: 4px 8px; border-radius: var(--r-sm);
+}
+.doc-title-input::placeholder { color: var(--ink3); font-weight: 400; }
+.doc-title-input:hover { background: var(--paper); }
+.doc-title-input:focus { background: var(--paper); }
+
+.topbar-sep { width: 1px; height: 20px; background: var(--edge); margin: 0 8px; }
+
+.mode-tabs { display: flex; gap: 2px; }
+.mode-tab {
+  padding: 5px 10px; border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 500; color: var(--ink2);
+  border: none; background: none; cursor: pointer;
+  font-family: inherit; transition: all .12s; white-space: nowrap;
+}
+.mode-tab:hover { background: var(--paper); color: var(--ink); }
+.mode-tab.active { background: var(--blue-dim); color: var(--blue); }
+
+.topbar-actions { display: flex; gap: 4px; margin-left: auto; }
+.tb-btn {
+  padding: 5px 10px; border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 500; color: var(--ink2);
+  border: 1px solid var(--edge); background: var(--surface);
+  cursor: pointer; font-family: inherit; transition: all .12s;
+  display: flex; align-items: center; gap: 5px;
+}
+.tb-btn:hover { background: var(--paper); border-color: var(--edge2); color: var(--ink); }
+.tb-btn.primary { background: var(--blue); color: white; border-color: var(--blue); }
+.tb-btn.primary:hover { opacity: 0.88; }
+.tb-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Content area */
+.content-area {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Editor column */
+.editor-col {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  padding: 48px 24px;
+}
+.editor-wrap {
+  width: 100%;
+  max-width: 720px;
+  min-height: 500px;
+}
+
+/* The actual editor */
+.editor {
+  min-height: 500px;
+  font-family: 'Lora', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--ink);
+  outline: none;
+  caret-color: var(--blue);
+}
+.editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--ink3);
+  pointer-events: none;
+}
+.editor h1 { font-size: 26px; font-weight: 600; margin: 1.2em 0 0.4em; line-height: 1.3; font-family: 'DM Sans', sans-serif; }
+.editor h2 { font-size: 20px; font-weight: 600; margin: 1.1em 0 0.35em; line-height: 1.35; font-family: 'DM Sans', sans-serif; }
+.editor h3 { font-size: 17px; font-weight: 600; margin: 1em 0 0.3em; line-height: 1.4; font-family: 'DM Sans', sans-serif; }
+.editor p { margin-bottom: 0.85em; }
+.editor blockquote { border-left: 3px solid var(--edge2); margin: 1em 0; padding: 0.5em 0 0.5em 1.25em; color: var(--ink2); font-style: italic; }
+.editor ul, .editor ol { margin: 0.5em 0 0.85em 1.5em; }
+.editor li { margin-bottom: 0.3em; }
+.editor code { background: var(--paper); padding: 0.15em 0.4em; border-radius: 4px; font-size: 14px; font-family: 'Courier New', monospace; }
+
+/* AI-generated text highlight */
+.ai-text {
+  background: var(--blue-dim);
+  border-radius: 2px;
+  transition: background 2s ease;
+}
+.ai-text.faded { background: transparent; }
+
+/* Streaming cursor */
+.stream-cursor {
+  display: inline-block;
+  width: 2px; height: 1.1em;
+  background: var(--blue);
+  margin-left: 1px;
+  vertical-align: middle;
+  animation: blink .8s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ─── FLOATING TOOLBAR ─────────────────────────── */
+.float-toolbar {
+  position: fixed;
+  display: none;
+  align-items: center;
+  gap: 1px;
+  background: var(--ink);
+  border-radius: 8px;
+  padding: 4px 6px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12);
+  z-index: 1000;
+  pointer-events: auto;
+}
+.float-toolbar.visible { display: flex; }
+.ft-btn {
+  padding: 4px 7px; border-radius: 5px;
+  background: none; border: none;
+  color: rgba(255,255,255,0.75); font-size: 12px; font-weight: 500;
+  cursor: pointer; font-family: inherit; transition: all .12s;
+  white-space: nowrap;
+}
+.ft-btn:hover { background: rgba(255,255,255,0.12); color: white; }
+.ft-sep { width: 1px; height: 16px; background: rgba(255,255,255,0.15); margin: 0 2px; }
+.ft-btn.ai { color: #93c5fd; }
+.ft-btn.ai:hover { background: rgba(147,197,253,0.12); color: #bfdbfe; }
+
+/* ─── SLASH MENU ────────────────────────────────── */
+.slash-menu {
+  position: fixed;
+  background: var(--surface);
+  border: 1px solid var(--edge2);
+  border-radius: var(--r);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+  z-index: 999;
+  min-width: 240px;
+  overflow: hidden;
+  display: none;
+}
+.slash-menu.visible { display: block; }
+.slash-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; cursor: pointer;
+  font-size: 13px; color: var(--ink);
+  transition: background .1s;
+}
+.slash-item:hover, .slash-item.hov { background: var(--blue-dim); }
+.slash-icon { font-size: 16px; width: 24px; text-align: center; flex-shrink: 0; }
+.slash-desc { font-size: 11px; color: var(--ink3); }
+.slash-section { padding: 8px 12px 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink3); }
+
+/* ─── RIGHT AI PANEL ────────────────────────────── */
+.ai-panel {
+  width: var(--panel-w);
+  height: 100%;
+  border-left: 1px solid var(--edge);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: width .2s ease, opacity .2s;
+}
+.ai-panel.collapsed { width: 0; opacity: 0; pointer-events: none; }
+
+.panel-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--edge);
+  flex-shrink: 0;
+}
+.ptab {
+  flex: 1; padding: 10px 4px;
+  font-size: 12px; font-weight: 500; color: var(--ink2);
+  border: none; background: none; cursor: pointer;
+  font-family: inherit; transition: all .12s;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.ptab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+.panel-body { flex: 1; overflow-y: auto; padding: 14px; }
+
+/* Write panel */
+.wp-section { margin-bottom: 16px; }
+.wp-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink3); margin-bottom: 6px; }
+.wp-input, .wp-select, .wp-textarea {
+  width: 100%; padding: 7px 10px;
+  background: var(--paper); border: 1px solid var(--edge);
+  border-radius: var(--r-sm); color: var(--ink); font-size: 13px;
+  font-family: inherit; outline: none; transition: border .15s;
+}
+.wp-input:focus, .wp-textarea:focus { border-color: var(--blue); }
+.wp-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239b9a95'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; padding-right: 24px; }
+.wp-textarea { resize: vertical; min-height: 70px; }
+.wp-chips { display: flex; gap: 4px; flex-wrap: wrap; }
+.wp-chip {
+  padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  border: 1.5px solid var(--edge2); background: none; color: var(--ink2);
+  cursor: pointer; transition: all .12s; font-family: inherit;
+}
+.wp-chip:hover { border-color: var(--blue); color: var(--blue); }
+.wp-chip.on { border-color: var(--blue); background: var(--blue-dim); color: var(--blue); }
+
+.action-btn {
+  width: 100%; padding: 9px 12px;
+  background: var(--blue); color: white;
+  border: none; border-radius: var(--r-sm);
+  font-size: 13px; font-weight: 500; font-family: inherit;
+  cursor: pointer; transition: opacity .15s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.action-btn:hover { opacity: 0.88; }
+.action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.action-btn.secondary {
+  background: var(--paper); color: var(--ink2);
+  border: 1px solid var(--edge2);
+}
+.action-btn.secondary:hover { background: var(--edge); color: var(--ink); opacity: 1; }
+
+/* Progress / status in panel */
+.progress-bar { height: 2px; background: var(--edge); border-radius: 1px; overflow: hidden; margin: 8px 0; }
+.progress-fill { height: 100%; background: var(--blue); border-radius: 1px; transition: width .4s ease; }
+.status-text { font-size: 12px; color: var(--ink2); }
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.b-q { background: var(--paper); color: var(--ink2); }
+.b-r { background: #fef3c7; color: #92400e; }
+.b-w { background: var(--blue-dim); color: var(--blue); }
+.b-d { background: var(--green-dim); color: var(--green); }
+.b-f { background: #fee2e2; color: #991b1b; }
+
+/* Stats row */
+.stats-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+.stat-box { background: var(--paper); border-radius: var(--r-sm); padding: 6px 10px; flex: 1; min-width: 60px; }
+.stat-n { font-size: 16px; font-weight: 600; color: var(--ink); line-height: 1; }
+.stat-l { font-size: 10px; color: var(--ink3); margin-top: 2px; }
+
+/* Sources */
+.source-item { padding: 5px 0; border-bottom: 1px solid var(--edge); font-size: 11px; color: var(--ink2); line-height: 1.5; }
+.source-item:last-child { border: none; }
+.source-num { color: var(--ink3); font-weight: 600; margin-right: 3px; }
+
+/* ─── STATUS BAR ────────────────────────────────── */
+.statusbar {
+  height: 28px; border-top: 1px solid var(--edge);
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 16px; background: var(--surface);
+  font-size: 11px; color: var(--ink3); flex-shrink: 0;
+}
+.sb-item { display: flex; align-items: center; gap: 4px; }
+.sb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.sb-dot.inactive { background: var(--ink3); }
+
+/* ─── PAGES ─────────────────────────────────────── */
+.page { display: none; flex: 1; overflow: hidden; }
+.page.active { display: flex; }
+
+/* ─── TEMPLATES MODAL ──────────────────────────── */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 2000; display: none;
+  align-items: center; justify-content: center;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: 14px;
+  width: 720px; max-width: 95vw;
+  max-height: 85vh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+}
+.modal-head {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--edge);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-title { font-size: 16px; font-weight: 600; }
+.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--ink2); padding: 2px 6px; border-radius: 6px; }
+.modal-close:hover { background: var(--paper); }
+.modal-body { padding: 20px 24px; overflow-y: auto; }
+.template-cats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+.tcat {
+  padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  border: 1.5px solid var(--edge2); background: none; color: var(--ink2);
+  cursor: pointer; font-family: inherit; transition: all .12s;
+}
+.tcat.on, .tcat:hover { border-color: var(--blue); background: var(--blue-dim); color: var(--blue); }
+.template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.template-card {
+  border: 1.5px solid var(--edge);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.template-card:hover { border-color: var(--blue); background: var(--blue-dim); }
+.tc-icon { font-size: 20px; margin-bottom: 8px; }
+.tc-name { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+.tc-desc { font-size: 11px; color: var(--ink2); line-height: 1.4; }
+
+/* Outline preview */
+.outline-card { background: var(--paper); border-radius: var(--r); padding: 14px; margin: 10px 0; }
+.ol-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+.ol-section { margin-bottom: 10px; }
+.ol-heading { font-size: 13px; font-weight: 600; color: var(--blue); margin-bottom: 4px; }
+.ol-point { font-size: 12px; color: var(--ink2); padding-left: 14px; position: relative; margin-bottom: 2px; }
+.ol-point::before { content: '•'; position: absolute; left: 4px; color: var(--ink3); }
 
 /* History */
-.h-item{padding:0.75rem;border:0.5px solid var(--border);border-radius:var(--r-sm);margin-bottom:0.5rem;cursor:pointer;transition:background 0.1s}
-.h-item:hover{background:var(--surface2)}
-.h-title{font-size:14px;font-weight:500}
-.h-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.history-wrap { flex: 1; overflow-y: auto; padding: 24px; }
+.history-grid { max-width: 800px; margin: 0 auto; }
+.hist-item {
+  padding: 14px 16px; border: 1px solid var(--edge);
+  border-radius: var(--r); margin-bottom: 8px; cursor: pointer;
+  transition: all .12s; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+}
+.hist-item:hover { border-color: var(--blue); background: var(--blue-dim); }
+.hist-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.hist-meta { font-size: 11px; color: var(--ink3); }
 
-/* Settings section headers */
-.s-head{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.4px;margin:1.5rem 0 0.75rem;padding-bottom:0.5rem;border-bottom:0.5px solid var(--border)}
-.s-head:first-of-type{margin-top:0}
+/* Settings */
+.settings-wrap { flex: 1; overflow-y: auto; padding: 32px; }
+.settings-card { max-width: 580px; background: var(--surface); border: 1px solid var(--edge); border-radius: var(--r); padding: 24px; margin-bottom: 16px; }
+.settings-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.settings-sub { font-size: 13px; color: var(--ink2); margin-bottom: 20px; }
+.sf { margin-bottom: 16px; }
+.sf:last-child { margin-bottom: 0; }
+.sf label { display: block; font-size: 12px; font-weight: 600; color: var(--ink2); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.3px; }
+.sf input, .sf textarea, .sf select {
+  width: 100%; padding: 8px 10px;
+  background: var(--paper); border: 1px solid var(--edge);
+  border-radius: var(--r-sm); color: var(--ink); font-size: 13px;
+  font-family: inherit; outline: none; transition: border .15s;
+}
+.sf textarea { resize: vertical; min-height: 90px; }
+.sf input:focus, .sf textarea:focus, .sf select:focus { border-color: var(--blue); }
+.save-btn {
+  padding: 8px 20px; background: var(--blue); color: white;
+  border: none; border-radius: var(--r-sm);
+  font-size: 13px; font-weight: 500; font-family: inherit;
+  cursor: pointer; transition: opacity .15s;
+}
+.save-btn:hover { opacity: 0.88; }
 
-@media(max-width:700px){
-  .sidebar{display:none}
-  .content{margin-left:0}
-  .page{padding:1.25rem}
-  .grid2,.grid3{grid-template-columns:1fr}
+/* Upload zone */
+.up-zone {
+  border: 1.5px dashed var(--edge2);
+  border-radius: var(--r-sm);
+  padding: 14px;
+  text-align: center; cursor: pointer;
+  background: var(--paper); position: relative;
+  transition: all .15s;
+}
+.up-zone:hover, .up-zone.drag { border-color: var(--blue); background: var(--blue-dim); }
+.up-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.up-zone-inner { pointer-events: none; }
+.up-zone p { font-size: 12px; color: var(--ink2); margin-top: 4px; }
+.up-zone .sub { font-size: 11px; color: var(--ink3); }
+.file-pill { display: inline-flex; align-items: center; gap: 5px; background: var(--paper); border: 1px solid var(--edge); border-radius: 20px; padding: 3px 8px 3px 10px; font-size: 11px; color: var(--ink2); margin: 3px; }
+.file-pill button { background: none; border: none; cursor: pointer; color: var(--ink3); font-size: 14px; line-height: 1; padding: 0; }
+.file-pill button:hover { color: var(--red); }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: white; padding: 8px 18px;
+  border-radius: 20px; font-size: 13px; font-weight: 500;
+  z-index: 3000; opacity: 0; transition: all .2s;
+  pointer-events: none; white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Rewrite drawer */
+.rewrite-drawer {
+  padding: 12px 0;
+  display: none;
+}
+.rewrite-drawer.open { display: block; }
+.rw-action {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-radius: var(--r-sm);
+  font-size: 13px; color: var(--ink); cursor: pointer;
+  border: none; background: none; width: 100%;
+  text-align: left; font-family: inherit; transition: background .1s;
+}
+.rw-action:hover { background: var(--blue-dim); color: var(--blue); }
+.rw-icon { font-size: 14px; width: 20px; text-align: center; }
+
+/* Outline panel */
+.outline-panel-item { padding: 6px 0; }
+.opi-head { font-size: 12px; font-weight: 600; color: var(--blue); margin-bottom: 3px; cursor: pointer; }
+.opi-insert { font-size: 11px; color: var(--ink3); }
+.use-outline-btn { 
+  width: 100%; margin-top: 10px;
+  padding: 8px; background: var(--blue);
+  color: white; border: none; border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 500; font-family: inherit;
+  cursor: pointer; transition: opacity .15s;
+}
+.use-outline-btn:hover { opacity: 0.88; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .ai-panel { display: none; }
+  .ai-panel.force-show { display: flex; position: fixed; right: 0; top: 0; bottom: 0; z-index: 500; box-shadow: -8px 0 24px rgba(0,0,0,0.1); }
+}
+@media (max-width: 600px) {
+  .sidebar { display: none; }
 }
 </style>
 </head>
 <body>
-<div class="shell">
 
+<!-- Floating Toolbar -->
+<div class="float-toolbar" id="floatToolbar">
+  <button class="ft-btn" onclick="fmt('bold')" title="Bold"><b>B</b></button>
+  <button class="ft-btn" onclick="fmt('italic')" title="Italic"><i>I</i></button>
+  <button class="ft-btn" onclick="fmt('underline')" title="Underline"><u>U</u></button>
+  <button class="ft-btn" onclick="fmtBlock('h2')">H2</button>
+  <button class="ft-btn" onclick="fmtBlock('h3')">H3</button>
+  <button class="ft-btn" onclick="fmtBlock('blockquote')">"</button>
+  <div class="ft-sep"></div>
+  <button class="ft-btn ai" onclick="rewriteSelected('improve')">✨ Improve</button>
+  <button class="ft-btn ai" onclick="rewriteSelected('shorten')">↓ Shorten</button>
+  <button class="ft-btn ai" onclick="rewriteSelected('expand')">↑ Expand</button>
+  <button class="ft-btn ai" onclick="rewriteSelected('academic')">🎓 Academic</button>
+</div>
+
+<!-- Slash Menu -->
+<div class="slash-menu" id="slashMenu">
+  <div class="slash-section">AI Actions</div>
+  <div class="slash-item" onclick="slashAction('continue')"><span class="slash-icon">✍️</span><div><div>Continue Writing</div><div class="slash-desc">AI continues from where you left off</div></div></div>
+  <div class="slash-item" onclick="slashAction('outline')"><span class="slash-icon">📋</span><div><div>Generate Outline</div><div class="slash-desc">Create a structured outline for your topic</div></div></div>
+  <div class="slash-item" onclick="slashAction('summarize')"><span class="slash-icon">📝</span><div><div>Summarize Above</div><div class="slash-desc">Summarize what you've written so far</div></div></div>
+  <div class="slash-section">Format</div>
+  <div class="slash-item" onclick="slashBlock('h1')"><span class="slash-icon">H1</span><div><div>Heading 1</div></div></div>
+  <div class="slash-item" onclick="slashBlock('h2')"><span class="slash-icon">H2</span><div><div>Heading 2</div></div></div>
+  <div class="slash-item" onclick="slashBlock('blockquote')"><span class="slash-icon">"</span><div><div>Quote Block</div></div></div>
+  <div class="slash-item" onclick="slashBlock('ul')"><span class="slash-icon">•</span><div><div>Bullet List</div></div></div>
+</div>
+
+<!-- Templates Modal -->
+<div class="modal-backdrop" id="templateModal" onclick="if(event.target===this)closeTemplates()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Choose a Template</div>
+      <button class="modal-close" onclick="closeTemplates()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="template-cats">
+        <button class="tcat on" onclick="filterTemplates('all',this)">All</button>
+        <button class="tcat" onclick="filterTemplates('academic',this)">Academic</button>
+        <button class="tcat" onclick="filterTemplates('content',this)">Content</button>
+        <button class="tcat" onclick="filterTemplates('creative',this)">Creative</button>
+        <button class="tcat" onclick="filterTemplates('professional',this)">Professional</button>
+      </div>
+      <div class="template-grid" id="templateGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- SIDEBAR -->
 <nav class="sidebar">
   <div class="brand">
-    <div class="brand-name">Essay Writer</div>
-    <div class="brand-sub">AI Academic Writing</div>
+    <div class="brand-icon">✍</div>
+    <div>
+      <div class="brand-text">Writer</div>
+      <div class="brand-sub">AI Writing Studio</div>
+    </div>
   </div>
-  <div class="nav">
-    <button class="nav-item on" onclick="go('write',this)">
-      <span class="nav-icon">✍️</span> Write Essay
+
+  <button class="new-btn" onclick="newDocument()">
+    + New Document
+  </button>
+
+  <div class="nav-section">
+    <div class="nav-label">Create</div>
+    <button class="nav-item active" id="nav-write" onclick="showPage('write',this)">
+      <span class="ni">✍️</span> Write
     </button>
-    <button class="nav-item" onclick="go('essays',this)">
-      <span class="nav-icon">📄</span> My Essays
-    </button>
-    <button class="nav-item" onclick="go('check',this)">
-      <span class="nav-icon">🔍</span> Check Originality
-    </button>
-    <button class="nav-item" onclick="go('settings',this)">
-      <span class="nav-icon">⚙️</span> Settings
+    <button class="nav-item" id="nav-templates" onclick="openTemplates()">
+      <span class="ni">📋</span> Templates
     </button>
   </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Library</div>
+    <button class="nav-item" id="nav-essays" onclick="showPage('essays',this)">
+      <span class="ni">📄</span> My Documents
+    </button>
+    <button class="nav-item" id="nav-check" onclick="showPage('check',this)">
+      <span class="ni">🔍</span> Check Originality
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Account</div>
+    <button class="nav-item" id="nav-settings" onclick="showPage('settings',this)">
+      <span class="ni">⚙️</span> Settings
+    </button>
+  </div>
+
+  <div class="recent-list" id="recentList" style="margin-top:8px">
+    <div style="padding:4px 10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3)">Recent</div>
+  </div>
+
   <div class="sidebar-footer">
-    Powered by Gemini 2.5<br>
-    CrossRef · OpenAlex · Semantic Scholar
+    Powered by Gemini 2.5 Flash<br>
+    Sources: CrossRef · OpenAlex · Semantic Scholar
   </div>
 </nav>
 
-<main class="content">
+<!-- MAIN -->
+<div class="main">
 
-<!-- WRITE -->
-<div id="pg-write" class="page on">
-  <div class="page-title">Write an Essay</div>
-  <div class="page-sub">Tell me what you need — I'll research and write it for you.</div>
-
-  <div class="card">
-    <div class="field">
-      <span class="label">What's your essay about?</span>
-      <textarea class="topic-input" id="topic" placeholder="e.g. The impact of social media on teenage mental health, with a focus on Instagram and TikTok..." rows="2"></textarea>
+  <!-- TOP BAR -->
+  <div class="topbar" id="topbar">
+    <input class="doc-title-input" id="docTitle" placeholder="Untitled document" />
+    <div class="topbar-sep"></div>
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="academic" onclick="setMode('academic',this)">📚 Essay</button>
+      <button class="mode-tab" data-mode="blog" onclick="setMode('blog',this)">📰 Blog</button>
+      <button class="mode-tab" data-mode="social" onclick="setMode('social',this)">📱 Social</button>
+      <button class="mode-tab" data-mode="email" onclick="setMode('email',this)">✉️ Email</button>
+      <button class="mode-tab" data-mode="creative" onclick="setMode('creative',this)">🎭 Creative</button>
     </div>
-
-    <div class="field">
-      <span class="label">Paper type</span>
-      <div class="chip-row" id="paper-chips">
-        <button class="chip" data-val="research_paper" onclick="selectChip(this,'paper-chips')">Research Paper <span style="color:var(--text3);font-size:11px">2–3k words</span></button>
-        <button class="chip on" data-val="bachelor" onclick="selectChip(this,'paper-chips')">Undergraduate <span style="color:var(--text3);font-size:11px">3–5k words</span></button>
-        <button class="chip" data-val="master" onclick="selectChip(this,'paper-chips')">Graduate <span style="color:var(--text3);font-size:11px">5–8k words</span></button>
-      </div>
+    <div class="topbar-actions">
+      <button class="tb-btn" onclick="openTemplates()">📋 Templates</button>
+      <button class="tb-btn" onclick="togglePanel()">AI ▾</button>
+      <button class="tb-btn" onclick="exportDoc('docx')">↓ DOCX</button>
+      <button class="tb-btn" onclick="exportDoc('txt')">↓ TXT</button>
     </div>
+  </div>
 
-    <div class="grid2">
-      <div class="field">
-        <span class="label">Language</span>
-        <select id="language">
-          <option value="en">English</option>
-          <option value="es">Spanish</option>
-          <option value="fr">French</option>
-          <option value="de">German</option>
-          <option value="pt">Portuguese</option>
-          <option value="it">Italian</option>
-          <option value="zh">Chinese</option>
-        </select>
-      </div>
-      <div class="field">
-        <span class="label">Essay style</span>
-        <select id="essay_style">
-          <option value="">General Academic</option>
-          <option value="argumentative">Argumentative</option>
-          <option value="analytical">Analytical</option>
-          <option value="compare_contrast">Compare & Contrast</option>
-          <option value="expository">Expository</option>
-          <option value="persuasive">Persuasive</option>
-          <option value="critical">Critical Analysis</option>
-          <option value="narrative">Narrative</option>
-        </select>
-      </div>
-    </div>
+  <!-- PAGES -->
 
-    <div class="field">
-      <span class="label">Extra notes <span style="font-size:12px;color:var(--text3);font-weight:400">— specific angle, course requirements, what to include or avoid</span></span>
-      <textarea id="notes" rows="2" placeholder="e.g. Focus on studies from 2018–2024. My professor wants a strong counter-argument section. Use APA format."></textarea>
-    </div>
-
-    <div class="field">
-      <span class="label">Upload files <span style="font-size:12px;color:var(--text3);font-weight:400">— lecture notes, readings, past drafts to reference</span></span>
-      <div class="upload-zone" id="uz" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
-        <input type="file" id="file-input" multiple accept=".pdf,.docx,.txt,.md" onchange="onFileSelect(event)">
-        <div class="upload-zone-inner">
-          <div style="font-size:22px">📎</div>
-          <p>Click to browse or drag files here</p>
-          <p class="sub">PDF, DOCX, TXT — up to 5 files</p>
+  <!-- WRITE PAGE -->
+  <div class="page active" id="page-write">
+    <div class="content-area">
+      <!-- Editor -->
+      <div class="editor-col">
+        <div class="editor-wrap">
+          <div
+            class="editor"
+            id="editor"
+            contenteditable="true"
+            data-placeholder="Start writing, or press / for commands and AI actions…"
+            spellcheck="true"
+          ></div>
         </div>
       </div>
-      <div class="chips-list" id="file-chips"></div>
-    </div>
 
-    <div class="gen-bar">
-      <div class="gen-note" id="settings-check"></div>
-      <button class="btn btn-primary" id="gen-btn" onclick="generate()">Generate Essay →</button>
-    </div>
-  </div>
+      <!-- AI Panel -->
+      <div class="ai-panel" id="aiPanel">
+        <div class="panel-tabs">
+          <button class="ptab active" onclick="panelTab('generate',this)">Generate</button>
+          <button class="ptab" onclick="panelTab('rewrite',this)">Rewrite</button>
+          <button class="ptab" onclick="panelTab('outline',this)">Outline</button>
+          <button class="ptab" onclick="panelTab('sources',this)">Sources</button>
+        </div>
 
-  <!-- Progress -->
-  <div class="progress-card" id="prog-card" style="display:none">
-    <div class="status-row">
-      <span class="badge b-queued" id="prog-badge">Queued</span>
-      <span class="status-msg" id="prog-msg">Starting…</span>
-    </div>
-    <div class="pbar"><div class="pfill" id="prog-bar" style="width:5%"></div></div>
-    <div class="status-detail" id="prog-detail"></div>
-  </div>
+        <!-- GENERATE TAB -->
+        <div class="panel-body" id="ptab-generate">
+          <div class="wp-section">
+            <div class="wp-label">What are you writing about?</div>
+            <textarea class="wp-textarea" id="wp-topic" rows="3" placeholder="Describe your topic, question, or what you want to write…"></textarea>
+          </div>
 
-  <!-- Research collected -->
-  <div class="research-card" id="research-card" style="display:none">
-    <div class="card-label">Research Collected</div>
-    <div id="research-body"></div>
-  </div>
+          <div class="wp-section">
+            <div class="wp-label">Length</div>
+            <div class="wp-chips" id="len-chips">
+              <button class="wp-chip" data-val="research_paper" onclick="chipSel(this,'len-chips')">Short</button>
+              <button class="wp-chip on" data-val="bachelor" onclick="chipSel(this,'len-chips')">Medium</button>
+              <button class="wp-chip" data-val="master" onclick="chipSel(this,'len-chips')">Long</button>
+            </div>
+          </div>
 
-  <!-- Result -->
-  <div class="result-card" id="result-card" style="display:none">
-    <div class="stats-row" id="result-stats"></div>
-    <div class="tabs">
-      <button class="tab on" onclick="tab('essay',this)">Essay</button>
-      <button class="tab" onclick="tab('sources',this)">Sources Used</button>
-      <button class="tab" onclick="tab('refs',this)">References</button>
-    </div>
-    <div id="tab-essay"><div class="essay-body" id="essay-text"></div></div>
-    <div id="tab-sources" style="display:none"><div id="sources-body"></div></div>
-    <div id="tab-refs" style="display:none"><div id="refs-body"></div></div>
-    <div class="btn-row" style="margin-top:1.1rem;padding-top:1.1rem;border-top:0.5px solid var(--border)">
-      <button class="btn btn-sm btn-primary" onclick="dl('docx')">↓ Download DOCX</button>
-      <button class="btn btn-sm" onclick="dl('txt')">↓ Download TXT</button>
-      <button class="btn btn-sm" onclick="copyEssay()">Copy Text</button>
-      <button class="btn btn-sm" onclick="checkCurrent()">Check Originality</button>
-    </div>
-  </div>
-</div>
+          <div class="wp-section">
+            <div class="wp-label">Notes <span style="font-weight:400;color:var(--ink3)">(optional)</span></div>
+            <textarea class="wp-textarea" id="wp-notes" rows="2" placeholder="Course requirements, specific angle, things to include or avoid…"></textarea>
+          </div>
 
-<!-- MY ESSAYS -->
-<div id="pg-essays" class="page">
-  <div class="page-title">My Essays</div>
-  <div class="page-sub">All your generated essays.</div>
-  <button class="btn btn-sm" onclick="loadHistory()" style="margin-bottom:1rem">Refresh</button>
-  <div id="history-body"></div>
-</div>
+          <div class="wp-section">
+            <div class="wp-label">Upload Files <span style="font-weight:400;color:var(--ink3)">(optional)</span></div>
+            <div class="up-zone" id="up-zone" ondragover="onDrag(event,'up-zone')" ondragleave="offDrag('up-zone')" ondrop="onDrop(event)">
+              <input type="file" id="file-input" multiple accept=".pdf,.docx,.txt,.md" onchange="onFileSelect(event)">
+              <div class="up-zone-inner">
+                <div style="font-size:20px">📎</div>
+                <p>Click or drag files here</p>
+                <p class="sub">PDF, DOCX, TXT — up to 5 files</p>
+              </div>
+            </div>
+            <div id="file-chips" style="margin-top:6px"></div>
+          </div>
 
-<!-- CHECK -->
-<div id="pg-check" class="page">
-  <div class="page-title">Originality Check</div>
-  <div class="page-sub">Paste any text to check for AI content probability.</div>
-  <div class="card">
-    <div class="field">
-      <textarea id="check-text" rows="8" placeholder="Paste your essay text here…"></textarea>
-    </div>
-    <button class="btn btn-primary" onclick="checkDirect()">Analyze Text</button>
-  </div>
-  <div id="check-result"></div>
-</div>
+          <!-- Progress -->
+          <div id="progress-area" style="display:none;margin-bottom:14px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+              <span class="badge b-q" id="prog-badge">Queued</span>
+              <span class="status-text" id="prog-msg">Starting…</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:5%"></div></div>
+            <div style="font-size:11px;color:var(--ink3);margin-top:4px" id="prog-detail"></div>
+          </div>
 
-<!-- SETTINGS -->
-<div id="pg-settings" class="page">
-  <div class="page-title">Settings</div>
-  <div class="page-sub">Set your preferences once. They'll apply to every essay you generate.</div>
+          <button class="action-btn" id="gen-btn" onclick="generateContent()">
+            ✨ Generate
+          </button>
 
-  <div class="card">
-    <div class="s-head">Your Writing Voice</div>
-    <div class="field">
-      <span class="label">Your writing sample</span>
-      <textarea id="s-persona" rows="5" placeholder="Paste 2–3 paragraphs of your own writing here. The AI will match your vocabulary, sentence rhythm, and tone in every essay it writes for you.&#10;&#10;The more you paste, the better it captures your voice."></textarea>
-      <div class="hint">This is saved locally and injected into every essay automatically. You never need to paste it again.</div>
-    </div>
-    <div class="field">
-      <span class="label">Upload a past essay <span style="font-size:12px;color:var(--text3);font-weight:400">optional — for voice matching</span></span>
-      <div class="upload-zone" id="persona-uz" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onPersonaDrop(event)">
-        <input type="file" id="persona-file" accept=".pdf,.docx,.txt" onchange="onPersonaFile(event)">
-        <div class="upload-zone-inner">
-          <div style="font-size:22px">📄</div>
-          <p id="persona-file-name">Click to upload your past essay</p>
-          <p class="sub">PDF, DOCX, TXT</p>
+          <div id="result-actions" style="display:none;margin-top:10px">
+            <div class="stats-row" id="result-stats"></div>
+            <button class="action-btn secondary" style="margin-top:6px" onclick="generateContent()">Regenerate</button>
+          </div>
+        </div>
+
+        <!-- REWRITE TAB -->
+        <div class="panel-body" id="ptab-rewrite" style="display:none">
+          <div style="font-size:12px;color:var(--ink2);margin-bottom:12px;line-height:1.6">Select text in the editor, then choose an action. Or paste text below.</div>
+          <div class="wp-section">
+            <div class="wp-label">Text to rewrite</div>
+            <textarea class="wp-textarea" id="rw-text" rows="5" placeholder="Paste text here, or select text in the editor…"></textarea>
+          </div>
+          <div class="wp-label" style="margin-bottom:8px">Action</div>
+          <button class="rw-action" onclick="doRewrite('improve')"><span class="rw-icon">✨</span> Improve quality</button>
+          <button class="rw-action" onclick="doRewrite('academic')"><span class="rw-icon">🎓</span> Make it academic</button>
+          <button class="rw-action" onclick="doRewrite('professional')"><span class="rw-icon">💼</span> Make it professional</button>
+          <button class="rw-action" onclick="doRewrite('casual')"><span class="rw-icon">💬</span> Make it casual</button>
+          <button class="rw-action" onclick="doRewrite('shorten')"><span class="rw-icon">↓</span> Shorten it</button>
+          <button class="rw-action" onclick="doRewrite('expand')"><span class="rw-icon">↑</span> Expand it</button>
+          <button class="rw-action" onclick="doRewrite('simplify')"><span class="rw-icon">✂️</span> Simplify language</button>
+          <button class="rw-action" onclick="doRewrite('persuasive')"><span class="rw-icon">🎯</span> Make it persuasive</button>
+          <button class="rw-action" onclick="doRewrite('creative')"><span class="rw-icon">🎨</span> Make it creative</button>
+          <div id="rw-result" style="display:none;margin-top:12px">
+            <div class="wp-label">Result</div>
+            <div style="background:var(--paper);border-radius:var(--r-sm);padding:10px;font-size:13px;line-height:1.7;color:var(--ink);max-height:200px;overflow-y:auto" id="rw-output"></div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button class="action-btn" style="flex:1" onclick="insertRewrite()">Insert into editor</button>
+              <button class="action-btn secondary" onclick="copyRewrite()">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- OUTLINE TAB -->
+        <div class="panel-body" id="ptab-outline" style="display:none">
+          <div class="wp-section">
+            <div class="wp-label">Topic</div>
+            <textarea class="wp-textarea" id="ol-topic" rows="2" placeholder="What's this piece about?"></textarea>
+          </div>
+          <button class="action-btn" onclick="generateOutline()">📋 Generate Outline</button>
+          <div id="outline-result" style="margin-top:12px"></div>
+        </div>
+
+        <!-- SOURCES TAB -->
+        <div class="panel-body" id="ptab-sources" style="display:none">
+          <div style="font-size:12px;color:var(--ink2);margin-bottom:10px">Academic sources pulled from CrossRef, OpenAlex, and Semantic Scholar for your current document.</div>
+          <div id="sources-list">
+            <div style="font-size:12px;color:var(--ink3);text-align:center;padding:20px">Generate an essay to see sources here.</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="s-head">Writing Defaults</div>
-    <div class="grid2">
-      <div class="field">
-        <span class="label">Default citation style</span>
-        <select id="s-citation">
-          <option value="APA 7th">APA 7th Edition</option>
-          <option value="MLA 9th">MLA 9th Edition</option>
-          <option value="Chicago 17th">Chicago 17th</option>
-          <option value="Harvard">Harvard</option>
-          <option value="Vancouver">Vancouver</option>
-        </select>
-      </div>
-      <div class="field">
-        <span class="label">Default tone</span>
-        <select id="s-tone">
-          <option value="">Standard Academic</option>
-          <option value="formal">Formal</option>
-          <option value="conversational_academic">Conversational Academic</option>
-          <option value="critical">Critical & Evaluative</option>
-          <option value="objective">Strictly Objective</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="s-head">Connection</div>
-    <div class="field">
-      <span class="label">API URL</span>
-      <input type="text" id="s-api" placeholder="https://your-app.railway.app">
-      <div class="hint">Leave blank if you're on the same domain.</div>
-    </div>
-    <div class="field">
-      <span class="label">Push finished essays to Notion automatically?</span>
-      <select id="s-notion">
-        <option value="no">No</option>
-        <option value="yes">Yes</option>
-      </select>
-    </div>
-
-    <div style="margin-top:1.25rem">
-      <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
-      <span id="save-msg" style="font-size:13px;color:var(--success);margin-left:0.75rem"></span>
+    <!-- Status Bar -->
+    <div class="statusbar">
+      <div class="sb-item"><div class="sb-dot" id="sb-dot"></div><span id="sb-status">Ready</span></div>
+      <div class="sb-item"><span id="sb-words">0 words</span></div>
+      <div class="sb-item"><span id="sb-time">0 min read</span></div>
+      <div class="sb-item" style="margin-left:auto"><span id="sb-mode">Essay mode</span></div>
+      <div class="sb-item"><span style="color:var(--ink3)">Gemini 2.5 Flash</span></div>
     </div>
   </div>
-</div>
 
-</main>
+  <!-- ESSAYS PAGE -->
+  <div class="page" id="page-essays">
+    <div class="history-wrap">
+      <div class="history-grid">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div style="font-size:20px;font-weight:700;letter-spacing:-.4px">My Documents</div>
+          <button class="tb-btn" onclick="loadHistory()">Refresh</button>
+        </div>
+        <div id="history-body">
+          <div style="font-size:13px;color:var(--ink3);padding:20px 0">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECK PAGE -->
+  <div class="page" id="page-check">
+    <div class="settings-wrap">
+      <div class="settings-card">
+        <div class="settings-title">Originality Check</div>
+        <div class="settings-sub">Paste any text to check for AI content probability and writing patterns.</div>
+        <div class="sf">
+          <label>Your text</label>
+          <textarea id="check-text" rows="10" placeholder="Paste the text you want to check…"></textarea>
+        </div>
+        <button class="save-btn" onclick="runCheck()">Analyze Text</button>
+      </div>
+      <div id="check-result"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS PAGE -->
+  <div class="page" id="page-settings">
+    <div class="settings-wrap">
+      <div class="settings-card">
+        <div class="settings-title">Your Writing Voice</div>
+        <div class="settings-sub">Paste a sample of your own writing — the AI will match your voice, vocabulary, and tone in every piece it generates.</div>
+        <div class="sf">
+          <label>Writing sample</label>
+          <textarea id="s-voice" rows="7" placeholder="Paste 2–4 paragraphs of your own writing here. The more you add, the better the AI captures your style."></textarea>
+        </div>
+        <div class="sf">
+          <label>Upload a past essay or document</label>
+          <div class="up-zone" id="voice-zone" ondragover="onDrag(event,'voice-zone')" ondragleave="offDrag('voice-zone')" ondrop="onVoiceDrop(event)">
+            <input type="file" id="voice-file" accept=".txt,.docx,.pdf,.md" onchange="onVoiceFile(event)">
+            <div class="up-zone-inner">
+              <div style="font-size:18px">📄</div>
+              <p id="voice-file-name">Click to upload your writing sample</p>
+              <p class="sub">TXT, DOCX, PDF, MD</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">Writing Defaults</div>
+        <div class="settings-sub">These apply automatically to every document you create.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="sf">
+            <label>Default citation style</label>
+            <select id="s-citation">
+              <option value="APA 7th">APA 7th Edition</option>
+              <option value="MLA 9th">MLA 9th Edition</option>
+              <option value="Chicago 17th">Chicago 17th</option>
+              <option value="Harvard">Harvard</option>
+              <option value="Vancouver">Vancouver</option>
+              <option value="IEEE">IEEE</option>
+            </select>
+          </div>
+          <div class="sf">
+            <label>Default tone</label>
+            <select id="s-tone">
+              <option value="">Standard Academic</option>
+              <option value="formal">Formal</option>
+              <option value="conversational">Conversational Academic</option>
+              <option value="critical">Critical & Evaluative</option>
+              <option value="objective">Strictly Objective</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">Connection</div>
+        <div class="sf">
+          <label>API URL (leave blank if on same domain)</label>
+          <input type="text" id="s-api" placeholder="https://your-app.railway.app">
+        </div>
+        <div class="sf">
+          <label>Auto-push to Notion when essay completes?</label>
+          <select id="s-notion">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+        <button class="save-btn" onclick="saveSettings()">Save Settings</button>
+        <span id="save-msg" style="font-size:13px;color:var(--green);margin-left:12px"></span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-// State
-let jobId=null, poll=null, essay=null, files=[], personaFileText='';
-const S = key => localStorage.getItem('ew_'+key) || '';
-const SS = (key,val) => localStorage.setItem('ew_'+key, val);
+// ─────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────
+let currentMode = 'academic';
+let currentJobId = null;
+let pollTimer = null;
+let uploadedFiles = [];
+let currentEssay = null;
+let panelOpen = true;
+let currentOutline = null;
+let rwResultText = '';
+
+const S = k => localStorage.getItem('wr_'+k) || '';
+const SS = (k,v) => localStorage.setItem('wr_'+k, v);
 const api = () => S('api') || window.location.origin;
 
-// Nav
-function go(page, btn){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('on'));
-  document.getElementById('pg-'+page).classList.add('on');
-  if(btn) btn.classList.add('on');
-  if(page==='essays') loadHistory();
+// ─────────────────────────────────────────────────
+// TEMPLATES
+// ─────────────────────────────────────────────────
+const TEMPLATES = [
+  // Academic
+  { cat:'academic', icon:'📖', name:'Academic Essay', desc:'Structured essay with thesis, body paragraphs, and conclusion. Verified citations.', mode:'academic', topic:'', notes:'' },
+  { cat:'academic', icon:'🔬', name:'Research Paper', desc:'Full research paper with abstract, literature review, methodology, results.', mode:'academic', topic:'', notes:'Include abstract, literature review, methodology, results, and discussion sections. Use APA 7th.', len:'master' },
+  { cat:'academic', icon:'📚', name:'Literature Review', desc:'Review and synthesize existing research on a topic.', mode:'academic', topic:'', notes:'Synthesize and critically evaluate existing research. Focus on themes, patterns, and gaps in the literature.' },
+  { cat:'academic', icon:'🧪', name:'Lab Report', desc:'Scientific lab report with hypothesis, procedure, results, analysis.', mode:'academic', topic:'', notes:'Include hypothesis, procedure, results, analysis, and conclusion. Use scientific writing conventions.' },
+  { cat:'academic', icon:'💭', name:'Argumentative Essay', desc:'Make and defend a strong argument with evidence.', mode:'academic', topic:'', notes:'Present a clear thesis and defend it with evidence. Address counterarguments. Style: argumentative.' },
+  // Content
+  { cat:'content', icon:'✍️', name:'Blog Post', desc:'Engaging long-form blog article with SEO-friendly structure.', mode:'blog', topic:'', notes:'Write an engaging blog post with a compelling introduction, clear sections, and strong conclusion. Conversational but authoritative tone.' },
+  { cat:'content', icon:'📧', name:'Newsletter', desc:'Newsletter issue with key insights and a clear call to action.', mode:'blog', topic:'', notes:'Write a newsletter with an engaging opening, main content sections, and a clear call to action.' },
+  { cat:'content', icon:'💼', name:'LinkedIn Article', desc:'Professional thought leadership article for LinkedIn.', mode:'blog', topic:'', notes:'Write a LinkedIn article. Professional but personable. Start with a hook. Include personal insight. End with a question to drive comments.' },
+  { cat:'content', icon:'📱', name:'Twitter/X Thread', desc:'A punchy, engaging thread of 8-12 tweets.', mode:'social', topic:'', notes:'Write a Twitter/X thread of 8-12 tweets. Each tweet max 280 characters. Number them (1/ 2/ etc). Hook in tweet 1. End with a call to action.' },
+  { cat:'content', icon:'📸', name:'Instagram Caption', desc:'Engaging caption with hashtags.', mode:'social', topic:'', notes:'Write an engaging Instagram caption. Conversational, authentic, 150-300 words. End with 5-10 relevant hashtags.' },
+  // Creative
+  { cat:'creative', icon:'📖', name:'Short Story', desc:'A complete short story with character, conflict, and resolution.', mode:'creative', topic:'', notes:'Write a compelling short story. Focus on vivid descriptions, distinct characters, and a satisfying narrative arc.' },
+  { cat:'creative', icon:'✒️', name:'Personal Essay', desc:'Reflective personal essay sharing an experience or insight.', mode:'creative', topic:'', notes:'Write a reflective personal essay in first person. Share a specific experience and what you learned from it. Authentic and introspective tone.' },
+  { cat:'creative', icon:'🎤', name:'Speech or Presentation', desc:'A compelling speech with opening, body, and memorable close.', mode:'creative', topic:'', notes:'Write a speech. Start with a hook. Use rhetorical devices. Build to a powerful conclusion. 5-7 minutes speaking time.' },
+  // Professional
+  { cat:'professional', icon:'📝', name:'Cover Letter', desc:'Professional cover letter for a job application.', mode:'blog', topic:'', notes:'Write a professional cover letter. Highlight relevant experience. Show enthusiasm and fit. Keep to one page.' },
+  { cat:'professional', icon:'📊', name:'Executive Summary', desc:'Concise summary of a report or proposal for leadership.', mode:'blog', topic:'', notes:'Write a clear executive summary. Lead with conclusions. Be concise. Use bullet points for key findings. No jargon.' },
+  { cat:'professional', icon:'✉️', name:'Professional Email', desc:'Clear, professional email for any business context.', mode:'email', topic:'', notes:'Write a clear professional email. Concise subject line. Respectful, direct tone. Clear call to action. Brief.' },
+];
+
+let filteredTemplates = TEMPLATES;
+
+function openTemplates() {
+  renderTemplates('all');
+  document.getElementById('templateModal').classList.add('open');
+}
+function closeTemplates() {
+  document.getElementById('templateModal').classList.remove('open');
+}
+function filterTemplates(cat, btn) {
+  document.querySelectorAll('.tcat').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderTemplates(cat);
+}
+function renderTemplates(cat) {
+  const list = cat === 'all' ? TEMPLATES : TEMPLATES.filter(t => t.cat === cat);
+  document.getElementById('templateGrid').innerHTML = list.map((t,i) => `
+    <div class="template-card" onclick="useTemplate(${TEMPLATES.indexOf(t)})">
+      <div class="tc-icon">${t.icon}</div>
+      <div class="tc-name">${t.name}</div>
+      <div class="tc-desc">${t.desc}</div>
+    </div>
+  `).join('');
+}
+function useTemplate(idx) {
+  const t = TEMPLATES[idx];
+  setMode(t.mode, document.querySelector(`.mode-tab[data-mode="${t.mode}"]`));
+  if (t.notes) document.getElementById('wp-notes').value = t.notes;
+  if (t.len) {
+    document.querySelectorAll('#len-chips .wp-chip').forEach(c => {
+      c.classList.toggle('on', c.dataset.val === t.len);
+    });
+  }
+  closeTemplates();
+  showPage('write', document.getElementById('nav-write'));
+  document.getElementById('wp-topic').focus();
+  showPanel('generate');
+  toast('Template loaded — add your topic and generate!');
 }
 
-// Chips
-function selectChip(el, groupId){
-  document.querySelectorAll('#'+groupId+' .chip').forEach(c=>c.classList.remove('on'));
+// ─────────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────────
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+name)?.classList.add('active');
+  if (btn) btn.classList.add('active');
+  document.getElementById('topbar').style.display = name === 'write' ? '' : 'none';
+  if (name === 'essays') loadHistory();
+}
+
+function panelTab(name, btn) {
+  document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showPanel(name);
+}
+function showPanel(name) {
+  ['generate','rewrite','outline','sources'].forEach(n => {
+    const el = document.getElementById('ptab-'+n);
+    if (el) el.style.display = n === name ? '' : 'none';
+  });
+}
+function togglePanel() {
+  const p = document.getElementById('aiPanel');
+  panelOpen = !panelOpen;
+  p.classList.toggle('collapsed', !panelOpen);
+}
+
+function setMode(mode, btn) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const modeNames = { academic:'Essay mode', blog:'Blog mode', social:'Social mode', email:'Email mode', creative:'Creative mode' };
+  document.getElementById('sb-mode').textContent = modeNames[mode] || mode;
+  const editor = document.getElementById('editor');
+  editor.style.fontFamily = (mode === 'academic' || mode === 'creative') ? "'Lora', Georgia, serif" : "'DM Sans', system-ui, sans-serif";
+  editor.style.fontSize = (mode === 'academic' || mode === 'creative') ? '17px' : '15px';
+}
+
+function chipSel(el, groupId) {
+  document.querySelectorAll('#'+groupId+' .wp-chip').forEach(c => c.classList.remove('on'));
   el.classList.add('on');
 }
-function getChip(groupId){
-  const el=document.querySelector('#'+groupId+' .chip.on');
+function getChip(groupId) {
+  const el = document.querySelector('#'+groupId+' .wp-chip.on');
   return el ? el.dataset.val : 'bachelor';
 }
 
-// Tab
-function tab(name, btn){
-  ['essay','sources','refs'].forEach(n=>{
-    document.getElementById('tab-'+n).style.display=n===name?'':'none';
-  });
-  document.querySelectorAll('.tabs .tab').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
+// ─────────────────────────────────────────────────
+// EDITOR
+// ─────────────────────────────────────────────────
+const editor = document.getElementById('editor');
+let slashStart = null;
+
+editor.addEventListener('input', () => {
+  updateWordCount();
+  checkSlash();
+});
+
+editor.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeSlash();
+  if (document.getElementById('slashMenu').classList.contains('visible')) {
+    if (e.key === 'Enter') { e.preventDefault(); document.querySelector('.slash-item.hov')?.click(); }
+  }
+});
+
+editor.addEventListener('mouseup', showFloatToolbar);
+editor.addEventListener('keyup', showFloatToolbar);
+document.addEventListener('mousedown', e => {
+  if (!e.target.closest('.float-toolbar') && !e.target.closest('.slash-menu')) {
+    hideFloatToolbar();
+  }
+  if (!e.target.closest('.slash-menu')) closeSlash();
+});
+
+function checkSlash() {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  const text = range.startContainer.textContent || '';
+  const pos = range.startOffset;
+  if (text[pos - 1] === '/') {
+    slashStart = range.cloneRange();
+    showSlashMenu(range);
+  } else if (!text.substring(0, pos).includes('/') || text[pos-1] === ' ') {
+    closeSlash();
+  }
 }
 
-// Files
-function onDragOver(e){e.preventDefault();document.getElementById('uz').classList.add('drag')}
-function onDragLeave(){document.getElementById('uz').classList.remove('drag')}
-function onDrop(e){e.preventDefault();document.getElementById('uz').classList.remove('drag');addFiles(e.dataTransfer.files)}
-function onFileSelect(e){addFiles(e.target.files)}
-function addFiles(list){
-  Array.from(list).forEach(f=>{
-    if(files.length>=5||files.find(x=>x.name===f.name))return;
-    files.push(f);
-  });
-  renderFiles();
+function showSlashMenu(range) {
+  const rect = range.getBoundingClientRect();
+  const menu = document.getElementById('slashMenu');
+  menu.style.left = rect.left + 'px';
+  menu.style.top = (rect.bottom + 6) + 'px';
+  menu.classList.add('visible');
+  document.querySelectorAll('.slash-item').forEach((item,i) => item.classList.toggle('hov', i===0));
 }
-function removeFile(name){files=files.filter(f=>f.name!==name);renderFiles()}
-function renderFiles(){
-  document.getElementById('file-chips').innerHTML=files.map(f=>
+function closeSlash() {
+  document.getElementById('slashMenu').classList.remove('visible');
+  slashStart = null;
+}
+
+function slashAction(action) {
+  closeSlash();
+  deleteSlashChar();
+  if (action === 'continue') continueWriting();
+  if (action === 'outline') { showPanel('outline'); panelTab('outline', document.querySelector('.ptab:nth-child(3)')); }
+  if (action === 'summarize') summarizeAbove();
+}
+function slashBlock(type) {
+  closeSlash();
+  deleteSlashChar();
+  if (type === 'ul') document.execCommand('insertUnorderedList');
+  else document.execCommand('formatBlock', false, type);
+  editor.focus();
+}
+function deleteSlashChar() {
+  if (!slashStart) return;
+  const sel = window.getSelection();
+  const range = slashStart.cloneRange();
+  range.setStart(range.startContainer, range.startOffset - 1);
+  range.setEnd(range.startContainer, range.startOffset + 1);
+  range.deleteContents();
+}
+
+function showFloatToolbar() {
+  const sel = window.getSelection();
+  const toolbar = document.getElementById('floatToolbar');
+  if (!sel || sel.isCollapsed || !sel.toString().trim() || !editor.contains(sel.anchorNode)) {
+    return hideFloatToolbar();
+  }
+  const range = sel.getRangeAt(0);
+  const rect = range.getBoundingClientRect();
+  toolbar.style.left = (rect.left + rect.width / 2 - 200) + 'px';
+  toolbar.style.top = (rect.top - 44 + window.scrollY) + 'px';
+  toolbar.classList.add('visible');
+}
+function hideFloatToolbar() {
+  document.getElementById('floatToolbar').classList.remove('visible');
+}
+
+function fmt(cmd) {
+  document.execCommand(cmd);
+  editor.focus();
+}
+function fmtBlock(tag) {
+  document.execCommand('formatBlock', false, tag);
+  editor.focus();
+  hideFloatToolbar();
+}
+
+function updateWordCount() {
+  const text = editor.innerText || '';
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const mins = Math.ceil(words / 200);
+  document.getElementById('sb-words').textContent = words.toLocaleString() + ' words';
+  document.getElementById('sb-time').textContent = mins + ' min read';
+}
+
+function newDocument() {
+  if (editor.innerText.trim() && !confirm('Start a new document? Unsaved content will be cleared.')) return;
+  editor.innerHTML = '';
+  document.getElementById('docTitle').value = '';
+  currentJobId = null;
+  currentEssay = null;
+  document.getElementById('progress-area').style.display = 'none';
+  document.getElementById('result-actions').style.display = 'none';
+  document.getElementById('sources-list').innerHTML = '<div style="font-size:12px;color:var(--ink3);text-align:center;padding:20px">Generate an essay to see sources here.</div>';
+  updateWordCount();
+  showPage('write', document.getElementById('nav-write'));
+  editor.focus();
+}
+
+// Inject AI-generated text with highlight
+function injectText(html, stream = false) {
+  editor.focus();
+  const sel = window.getSelection();
+  let range;
+  if (sel.rangeCount) {
+    range = sel.getRangeAt(0);
+    range.collapse(false);
+  } else {
+    range = document.createRange();
+    range.selectNodeContents(editor);
+    range.collapse(false);
+  }
+
+  const span = document.createElement('span');
+  span.className = 'ai-text';
+  span.innerHTML = html;
+  range.insertNode(span);
+
+  // Move cursor to end of inserted text
+  range.setStartAfter(span);
+  range.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(range);
+
+  // Fade highlight after 3s
+  setTimeout(() => span.classList.add('faded'), 3000);
+  setTimeout(() => {
+    if (span.parentNode) {
+      const parent = span.parentNode;
+      while (span.firstChild) parent.insertBefore(span.firstChild, span);
+      parent.removeChild(span);
+    }
+  }, 5500);
+
+  updateWordCount();
+}
+
+// ─────────────────────────────────────────────────
+// FILE UPLOAD
+// ─────────────────────────────────────────────────
+function onDrag(e, id) { e.preventDefault(); document.getElementById(id).classList.add('drag'); }
+function offDrag(id) { document.getElementById(id).classList.remove('drag'); }
+function onDrop(e) { e.preventDefault(); offDrag('up-zone'); addFiles(e.dataTransfer.files); }
+function onFileSelect(e) { addFiles(e.target.files); }
+function addFiles(list) {
+  Array.from(list).forEach(f => {
+    if (uploadedFiles.length >= 5 || uploadedFiles.find(x => x.name === f.name)) return;
+    uploadedFiles.push(f);
+  });
+  renderFileChips();
+}
+function removeFile(name) { uploadedFiles = uploadedFiles.filter(f => f.name !== name); renderFileChips(); }
+function renderFileChips() {
+  document.getElementById('file-chips').innerHTML = uploadedFiles.map(f =>
     `<span class="file-pill">📄 ${f.name}<button onclick="removeFile('${f.name}')">×</button></span>`
   ).join('');
 }
+async function readFileText(file) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsText(file); });
+}
 
-// Persona file
-function onPersonaDrop(e){e.preventDefault();if(e.dataTransfer.files[0])readPersonaFile(e.dataTransfer.files[0])}
-function onPersonaFile(e){if(e.target.files[0])readPersonaFile(e.target.files[0])}
-function readPersonaFile(file){
-  const r=new FileReader();
-  r.onload=e=>{
-    personaFileText=e.target.result.substring(0,3000);
-    document.getElementById('persona-file-name').textContent='✓ '+file.name;
-    // Auto-populate persona textarea if empty
-    if(!document.getElementById('s-persona').value){
-      document.getElementById('s-persona').value=personaFileText;
-    }
+function onVoiceDrop(e) { e.preventDefault(); offDrag('voice-zone'); if(e.dataTransfer.files[0]) readVoiceFile(e.dataTransfer.files[0]); }
+function onVoiceFile(e) { if(e.target.files[0]) readVoiceFile(e.target.files[0]); }
+function readVoiceFile(file) {
+  const r = new FileReader();
+  r.onload = e => {
+    const text = e.target.result.substring(0, 3000);
+    document.getElementById('voice-file-name').textContent = '✓ ' + file.name;
+    if (!document.getElementById('s-voice').value) document.getElementById('s-voice').value = text;
   };
   r.readAsText(file);
 }
 
-async function readText(file){
-  return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsText(file)});
-}
+// ─────────────────────────────────────────────────
+// GENERATE (Full essay via research pipeline)
+// ─────────────────────────────────────────────────
+async function generateContent() {
+  const topic = document.getElementById('wp-topic').value.trim();
+  if (!topic) { toast('Please enter your topic first'); document.getElementById('wp-topic').focus(); return; }
 
-// Generate
-async function generate(){
-  const topic=document.getElementById('topic').value.trim();
-  if(!topic){alert('Please enter your essay topic.');return;}
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true; btn.textContent = 'Generating…';
+  document.getElementById('progress-area').style.display = 'block';
+  document.getElementById('result-actions').style.display = 'none';
+  setStatus('queued', 'Queued…', 5);
 
-  const btn=document.getElementById('gen-btn');
-  btn.disabled=true;btn.textContent='Working…';
+  // Build instructions from settings + form
+  const voice = S('voice');
+  const citation = S('citation') || 'APA 7th';
+  const tone = S('tone');
+  const notes = document.getElementById('wp-notes').value.trim();
+  const paperType = getChip('len-chips');
 
-  document.getElementById('prog-card').style.display='block';
-  document.getElementById('result-card').style.display='none';
-  document.getElementById('research-card').style.display='none';
-  setStatus('queued','Queued…',5);
+  let instrParts = [`Use ${citation} citation format.`];
+  const styleMap = { academic:'argumentative and analytical', blog:'engaging and readable', social:'concise and engaging', email:'clear and professional', creative:'creative and expressive' };
+  instrParts.push(`Writing style: ${styleMap[currentMode] || 'academic'}.`);
+  if (tone) instrParts.push(`Tone: ${tone}.`);
+  if (notes) instrParts.push(notes);
+  if (voice) instrParts.push(`Match this writing style (adapt, do not copy): "${voice.substring(0, 500)}"`);
 
-  // Build instructions from settings + current form
-  const persona=S('persona');
-  const citation=S('citation')||'APA 7th';
-  const tone=S('tone');
-  const notes=document.getElementById('notes').value.trim();
-  const essayStyle=document.getElementById('essay_style').value;
-
-  let instrParts=[];
-  instrParts.push(`Use ${citation} citation format.`);
-  if(essayStyle) instrParts.push(`Essay type: ${essayStyle.replace(/_/g,' ')}.`);
-  if(tone) instrParts.push(`Tone: ${tone.replace(/_/g,' ')}.`);
-  if(notes) instrParts.push(notes);
-  if(persona) instrParts.push(`Match this writing style (adapt, do not copy verbatim): "${persona.substring(0,600)}"`);
-
-  // Read uploaded files
-  let fileContext='';
-  for(const f of files){
-    try{const t=await readText(f);fileContext+=`\n\n[Reference file: ${f.name}]\n${t.substring(0,2000)}`;}catch(e){}
+  let fileContext = '';
+  for (const f of uploadedFiles) {
+    try { const t = await readFileText(f); fileContext += `\n\n[Reference: ${f.name}]\n${t.substring(0, 2000)}`; } catch(e) {}
   }
 
-  const payload={
+  const payload = {
     topic,
-    paper_type: getChip('paper-chips'),
-    language: document.getElementById('language').value,
-    additional_instructions: instrParts.join(' ') || null,
+    paper_type: paperType,
+    language: 'en',
+    additional_instructions: instrParts.join(' '),
     context_input: fileContext || null,
-    push_to_notion: S('notion')==='yes'
+    push_to_notion: S('notion') === 'yes'
   };
 
-  try{
-    const r=await fetch(api()+'/essay/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    const d=await r.json();
-    if(!d.job_id)throw new Error(d.detail||'No job ID returned');
-    jobId=d.job_id;
-    if(poll)clearInterval(poll);
-    poll=setInterval(pollStatus,2500);
-  }catch(err){
-    setStatus('failed','Error: '+err.message,0);
-    btn.disabled=false;btn.textContent='Generate Essay →';
+  try {
+    const res = await fetch(api() + '/essay/generate', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    const data = await res.json();
+    if (!data.job_id) throw new Error(data.detail || 'No job ID');
+    currentJobId = data.job_id;
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(pollJob, 2500);
+  } catch(err) {
+    setStatus('failed', 'Error: ' + err.message, 0);
+    btn.disabled = false; btn.textContent = '✨ Generate';
   }
 }
 
-async function pollStatus(){
-  if(!jobId)return;
-  try{
-    const r=await fetch(api()+'/essay/status/'+jobId);
-    const job=await r.json();
-    const msgs={
-      queued:'In queue…',
-      researching:'Searching academic databases for verified sources…',
-      writing:'Writing your essay…',
-      pushing_to_notion:'Saving to Notion…',
-      complete:'Done!',
-      failed:'Failed — '+(job.error||'unknown error')
+async function pollJob() {
+  if (!currentJobId) return;
+  try {
+    const res = await fetch(api() + '/essay/status/' + currentJobId);
+    const job = await res.json();
+
+    const msgs = {
+      queued: 'In queue…',
+      researching: 'Researching academic sources…',
+      writing: 'Writing your ' + currentMode + '…',
+      pushing_to_notion: 'Saving to Notion…',
+      complete: 'Done!',
+      failed: job.error || 'Something went wrong'
     };
-    setStatus(job.status,msgs[job.status]||job.status,job.progress||0);
+    const pcts = { queued:5, researching:35, writing:70, pushing_to_notion:90, complete:100, failed:0 };
+    const badges = { queued:'b-q', researching:'b-r', writing:'b-w', complete:'b-d', failed:'b-f', pushing_to_notion:'b-w' };
 
-    if(job.source_count){
-      document.getElementById('prog-detail').textContent=`${job.source_count} verified sources found`;
-      if(job.sources?.length) showResearch(job.sources,job.source_count,job.research_method);
+    setStatus(job.status, msgs[job.status] || job.status, pcts[job.status] || 0, badges[job.status]);
+    if (job.source_count) document.getElementById('prog-detail').textContent = `${job.source_count} verified sources found`;
+
+    if (job.status === 'complete') {
+      clearInterval(pollTimer);
+      document.getElementById('gen-btn').disabled = false;
+      document.getElementById('gen-btn').textContent = '✨ Generate';
+      await loadResult(currentJobId, job);
+      // Update recent list
+      addToRecent(document.getElementById('wp-topic').value.trim());
+    } else if (job.status === 'failed') {
+      clearInterval(pollTimer);
+      document.getElementById('gen-btn').disabled = false;
+      document.getElementById('gen-btn').textContent = '✨ Generate';
     }
+  } catch(e) { console.error(e); }
+}
 
-    if(job.status==='complete'){
-      clearInterval(poll);
-      document.getElementById('gen-btn').disabled=false;
-      document.getElementById('gen-btn').textContent='Generate Essay →';
-      await loadResult(jobId,job);
-    } else if(job.status==='failed'){
-      clearInterval(poll);
-      document.getElementById('gen-btn').disabled=false;
-      document.getElementById('gen-btn').textContent='Generate Essay →';
+function setStatus(status, msg, pct, badgeCls) {
+  const badge = document.getElementById('prog-badge');
+  const classes = { queued:'b-q', researching:'b-r', writing:'b-w', complete:'b-d', failed:'b-f', pushing_to_notion:'b-w' };
+  badge.className = 'badge ' + (badgeCls || classes[status] || 'b-q');
+  badge.textContent = status.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+  document.getElementById('prog-msg').textContent = msg;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  const sbDot = document.getElementById('sb-dot');
+  sbDot.className = 'sb-dot' + (status === 'complete' ? '' : ' inactive');
+  document.getElementById('sb-status').textContent = status === 'complete' ? 'Ready' : msg;
+}
+
+async function loadResult(jobId, job) {
+  try {
+    const res = await fetch(api() + '/essay/result/' + jobId);
+    const essay = await res.json();
+    currentEssay = essay; currentEssay.job_id = jobId;
+
+    // Put content into editor
+    editor.innerHTML = '';
+    const lines = (essay.content || '').split('\n');
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      let el;
+      if (line.startsWith('## ')) { el = document.createElement('h2'); el.textContent = line.slice(3); }
+      else if (line.startsWith('# ')) { el = document.createElement('h1'); el.textContent = line.slice(2); }
+      else if (line.startsWith('### ')) { el = document.createElement('h3'); el.textContent = line.slice(4); }
+      else { el = document.createElement('p'); el.textContent = line; }
+      el.className = 'ai-text';
+      editor.appendChild(el);
+      setTimeout(() => el.classList.add('faded'), 2500);
     }
-  }catch(e){}
-}
+    // Scroll to top
+    document.querySelector('.editor-col').scrollTop = 0;
 
-function setStatus(status,msg,pct){
-  const badge=document.getElementById('prog-badge');
-  const cls={queued:'b-queued',researching:'b-researching',writing:'b-writing',complete:'b-complete',failed:'b-failed',pushing_to_notion:'b-writing'};
-  badge.className='badge '+(cls[status]||'b-queued');
-  badge.textContent=status.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-  document.getElementById('prog-msg').textContent=msg;
-  document.getElementById('prog-bar').style.width=pct+'%';
-}
-
-function showResearch(sources,count,method){
-  const card=document.getElementById('research-card');
-  card.style.display='block';
-  const dbTag=m=>{
-    if(m==='crossref') return '<span class="db-tag db-cr">CrossRef</span>';
-    if(m==='openalex') return '<span class="db-tag db-oa">OpenAlex</span>';
-    if(m==='semanticscholar') return '<span class="db-tag db-ss">Semantic Scholar</span>';
-    return '';
-  };
-  const methods=(method||'').split('+').map(dbTag).join('');
-  document.getElementById('research-body').innerHTML=
-    `<div style="font-size:12px;color:var(--text2);margin-bottom:0.6rem">${count} sources pulled from ${methods}</div>`+
-    sources.slice(0,12).map((s,i)=>
-      `<div class="source-row"><span class="source-num">[${i+1}]</span>${s}</div>`
-    ).join('')+
-    (sources.length>12?`<div style="font-size:11px;color:var(--text3);padding:0.4rem 0">+${sources.length-12} more in essay</div>`:'');
-}
-
-async function loadResult(jid,job){
-  try{
-    const r=await fetch(api()+'/essay/result/'+jid);
-    const e=await r.json();
-    essay=e;essay.job_id=jid;
-    document.getElementById('result-card').style.display='block';
-    document.getElementById('result-stats').innerHTML=`
-      <div class="stat-box"><div class="stat-n">${(e.word_count||0).toLocaleString()}</div><div class="stat-l">Words</div></div>
+    // Stats
+    document.getElementById('result-stats').innerHTML = `
+      <div class="stat-box"><div class="stat-n">${(essay.word_count||0).toLocaleString()}</div><div class="stat-l">Words</div></div>
       <div class="stat-box"><div class="stat-n">${job.source_count||0}</div><div class="stat-l">Sources</div></div>
-      <div class="stat-box"><div class="stat-n">${(e.citations||[]).length}</div><div class="stat-l">References</div></div>
-      <div class="stat-box"><div class="stat-n" style="font-size:11px;padding-top:3px">${e.model_used||'Gemini'}</div><div class="stat-l">Model</div></div>
+      <div class="stat-box"><div class="stat-n">${(essay.citations||[]).length}</div><div class="stat-l">Refs</div></div>
     `;
-    document.getElementById('essay-text').textContent=e.content||'';
-    const srcs=job.sources||[];
-    document.getElementById('sources-body').innerHTML=srcs.length
-      ? `<div style="font-size:12px;color:var(--text2);margin-bottom:0.6rem">${srcs.length} sources verified</div>`+
-        srcs.map((s,i)=>`<div class="source-row"><span class="source-num">[${i+1}]</span>${s}</div>`).join('')
-      :'<p style="font-size:13px;color:var(--text3)">No sources captured.</p>';
-    const cites=e.citations||[];
-    document.getElementById('refs-body').innerHTML=cites.length
-      ? cites.map((c,i)=>`<div class="source-row"><span class="source-num">[${i+1}]</span>${c}</div>`).join('')
-      :'<p style="font-size:13px;color:var(--text3)">References embedded in essay.</p>';
-  }catch(e){console.error(e)}
+    document.getElementById('result-actions').style.display = 'block';
+
+    // Sources tab
+    const srcs = Array.isArray(job.sources) ? job.sources : [];
+    document.getElementById('sources-list').innerHTML = srcs.length
+      ? `<div style="font-size:11px;color:var(--ink2);margin-bottom:8px">${srcs.length} sources verified via CrossRef, OpenAlex, Semantic Scholar</div>`
+        + srcs.map((s,i) => `<div class="source-item"><span class="source-num">[${i+1}]</span>${s}</div>`).join('')
+      : '<div style="font-size:12px;color:var(--ink3);text-align:center;padding:20px">No sources captured.</div>';
+
+    updateWordCount();
+    if (document.getElementById('docTitle').value === '') {
+      document.getElementById('docTitle').value = essay.title || document.getElementById('wp-topic').value;
+    }
+    toast('Essay complete! ' + (essay.word_count||0).toLocaleString() + ' words');
+  } catch(e) { console.error(e); toast('Could not load result'); }
 }
 
-function dl(fmt){
-  if(!essay?.job_id)return;
-  window.open(api()+'/essay/download/'+essay.job_id+'?format='+fmt,'_blank');
-}
-function copyEssay(){
-  if(!essay)return;
-  navigator.clipboard.writeText(essay.content||'').then(()=>{alert('Copied!')});
+// ─────────────────────────────────────────────────
+// QUICK STREAM (social, email, short content)
+// ─────────────────────────────────────────────────
+async function streamQuick(prompt, system) {
+  const cursor = document.createElement('span');
+  cursor.className = 'stream-cursor';
+
+  const sel = window.getSelection();
+  let range;
+  if (sel.rangeCount && editor.contains(sel.anchorNode)) {
+    range = sel.getRangeAt(0);
+    range.collapse(false);
+  } else {
+    range = document.createRange();
+    range.selectNodeContents(editor);
+    range.collapse(false);
+  }
+  range.insertNode(cursor);
+
+  const wrapper = document.createElement('span');
+  wrapper.className = 'ai-text';
+  cursor.parentNode.insertBefore(wrapper, cursor.nextSibling);
+
+  try {
+    const res = await fetch(api() + '/stream/quick', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ prompt, system })
+    });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') break;
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed.text) {
+            wrapper.appendChild(document.createTextNode(parsed.text));
+          }
+        } catch(e) {}
+      }
+    }
+
+    // Fade highlight
+    setTimeout(() => wrapper.classList.add('faded'), 3000);
+    setTimeout(() => {
+      if (wrapper.parentNode) {
+        while (wrapper.firstChild) wrapper.parentNode.insertBefore(wrapper.firstChild, wrapper);
+        wrapper.parentNode.removeChild(wrapper);
+      }
+    }, 5500);
+
+  } catch(e) {
+    toast('Stream error: ' + e.message);
+  } finally {
+    cursor.remove();
+    updateWordCount();
+    editor.focus();
+  }
 }
 
-// History
-async function loadHistory(){
-  const body=document.getElementById('history-body');
-  body.innerHTML='<p style="color:var(--text3);font-size:13px">Loading…</p>';
-  try{
-    const r=await fetch(api()+'/essay/list');
-    const d=await r.json();
-    if(!d.jobs?.length){body.innerHTML='<p style="color:var(--text3);font-size:13px">No essays yet.</p>';return;}
-    const cls={complete:'b-complete',failed:'b-failed',queued:'b-queued'};
-    body.innerHTML=d.jobs.reverse().map(j=>`
-      <div class="h-item" onclick="viewEssay('${j.job_id}')">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div class="h-title">${j.title||j.topic}</div>
-          <span class="badge ${cls[j.status]||'b-queued'}">${j.status}</span>
+// ─────────────────────────────────────────────────
+// INLINE AI ACTIONS
+// ─────────────────────────────────────────────────
+async function continueWriting() {
+  const context = editor.innerText.trim().slice(-2000);
+  const modeCtx = { academic:'academic essay', blog:'blog post', social:'social media post', email:'professional email', creative:'creative writing' };
+  const prompt = `Continue this ${modeCtx[currentMode] || 'piece'} naturally. Write 2-3 paragraphs that flow directly from the existing text. Do not add a title or heading. Just continue writing:\n\n${context}\n\n[Continue here:]`;
+  document.getElementById('sb-status').textContent = 'Generating continuation…';
+
+  if (currentMode === 'social' || currentMode === 'email') {
+    await streamQuick(prompt);
+  } else {
+    await streamQuick(prompt);
+  }
+  document.getElementById('sb-status').textContent = 'Ready';
+}
+
+async function summarizeAbove() {
+  const text = editor.innerText.trim();
+  if (!text) { toast('Nothing to summarize yet'); return; }
+  const prompt = `Briefly summarize what has been written so far in 2-3 sentences. Be concise. Write the summary as a standalone paragraph:\n\n${text.slice(-3000)}\n\nSummary:`;
+  await streamQuick(prompt);
+}
+
+// ─────────────────────────────────────────────────
+// REWRITE
+// ─────────────────────────────────────────────────
+function rewriteSelected(action) {
+  const sel = window.getSelection();
+  const text = sel ? sel.toString().trim() : '';
+  if (!text) { toast('Select some text first'); return; }
+  document.getElementById('rw-text').value = text;
+  showPanel('rewrite');
+  panelTab('rewrite', document.querySelectorAll('.ptab')[1]);
+  hideFloatToolbar();
+  doRewrite(action);
+}
+
+let rwStream = '';
+async function doRewrite(action) {
+  const text = document.getElementById('rw-text').value.trim();
+  if (!text) { toast('Enter text to rewrite first'); return; }
+
+  document.getElementById('rw-result').style.display = 'block';
+  const output = document.getElementById('rw-output');
+  output.textContent = '';
+  rwStream = '';
+
+  try {
+    const res = await fetch(api() + '/stream/rewrite', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ text, action })
+    });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') break;
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed.text) { rwStream += parsed.text; output.textContent = rwStream; }
+        } catch(e) {}
+      }
+    }
+  } catch(e) { toast('Rewrite error: ' + e.message); }
+}
+
+function insertRewrite() {
+  if (!rwStream) return;
+  const sel = window.getSelection();
+  if (sel && !sel.isCollapsed && editor.contains(sel.anchorNode)) {
+    sel.deleteFromDocument();
+    injectText(rwStream.replace(/\n/g, '<br>'));
+  } else {
+    injectText(rwStream.replace(/\n/g, '<br>'));
+  }
+  toast('Inserted into editor');
+}
+
+function copyRewrite() {
+  navigator.clipboard.writeText(rwStream).then(() => toast('Copied!'));
+}
+
+// ─────────────────────────────────────────────────
+// OUTLINE
+// ─────────────────────────────────────────────────
+async function generateOutline() {
+  const topic = (document.getElementById('ol-topic').value || document.getElementById('wp-topic').value).trim();
+  if (!topic) { toast('Enter a topic for the outline'); return; }
+
+  document.getElementById('outline-result').innerHTML = '<div style="font-size:12px;color:var(--ink2)">Generating outline…</div>';
+
+  try {
+    const res = await fetch(api() + '/stream/outline', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ topic, content_type: currentMode === 'blog' ? 'blog' : currentMode === 'creative' ? 'creative' : 'essay' })
+    });
+    const data = await res.json();
+    currentOutline = data;
+
+    const html = `
+      <div class="outline-card">
+        <div class="ol-title">${data.title || topic}</div>
+        ${(data.sections || []).map(s => `
+          <div class="ol-section">
+            <div class="ol-heading">${s.heading}</div>
+            ${(s.points || []).map(p => `<div class="ol-point">${p}</div>`).join('')}
+          </div>
+        `).join('')}
+      </div>
+      <button class="use-outline-btn" onclick="insertOutline()">Insert Outline into Editor</button>
+    `;
+    document.getElementById('outline-result').innerHTML = html;
+  } catch(e) {
+    document.getElementById('outline-result').innerHTML = '<div style="color:var(--red);font-size:12px">Error generating outline</div>';
+  }
+}
+
+function insertOutline() {
+  if (!currentOutline) return;
+  editor.innerHTML = '';
+  const h1 = document.createElement('h1');
+  h1.textContent = currentOutline.title || document.getElementById('ol-topic').value;
+  h1.className = 'ai-text';
+  editor.appendChild(h1);
+
+  for (const section of (currentOutline.sections || [])) {
+    const h2 = document.createElement('h2');
+    h2.textContent = section.heading;
+    h2.className = 'ai-text';
+    editor.appendChild(h2);
+    const p = document.createElement('p');
+    p.textContent = (section.points || []).join(' · ');
+    p.style.color = 'var(--ink3)';
+    p.style.fontSize = '13px';
+    p.className = 'ai-text';
+    editor.appendChild(p);
+  }
+
+  setTimeout(() => editor.querySelectorAll('.ai-text').forEach(el => el.classList.add('faded')), 3000);
+  updateWordCount();
+  if (document.getElementById('docTitle').value === '') {
+    document.getElementById('docTitle').value = currentOutline.title || '';
+  }
+  document.getElementById('wp-topic').value = currentOutline.title || document.getElementById('ol-topic').value;
+  toast('Outline inserted — start writing!');
+}
+
+// ─────────────────────────────────────────────────
+// EXPORT
+// ─────────────────────────────────────────────────
+function exportDoc(fmt) {
+  if (currentEssay?.job_id) {
+    window.open(api() + '/essay/download/' + currentEssay.job_id + '?format=' + fmt, '_blank');
+    return;
+  }
+  // Export editor content
+  const text = editor.innerText;
+  const title = document.getElementById('docTitle').value || 'document';
+  if (fmt === 'txt') {
+    const blob = new Blob([text], {type:'text/plain'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = title + '.txt';
+    a.click();
+  } else if (fmt === 'md') {
+    const md = editor.innerHTML
+      .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n\n')
+      .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n\n')
+      .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n\n')
+      .replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n\n')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<[^>]+>/g, '');
+    const blob = new Blob([md], {type:'text/markdown'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = title+'.md'; a.click();
+  } else {
+    toast('Generate an essay first to download as DOCX');
+  }
+}
+
+// ─────────────────────────────────────────────────
+// HISTORY
+// ─────────────────────────────────────────────────
+function addToRecent(title) {
+  const el = document.createElement('div');
+  el.className = 'recent-item';
+  el.textContent = title;
+  el.title = title;
+  const list = document.getElementById('recentList');
+  const items = list.querySelectorAll('.recent-item');
+  if (items.length >= 5) items[items.length-1].remove();
+  list.appendChild(el);
+}
+
+async function loadHistory() {
+  const body = document.getElementById('history-body');
+  body.innerHTML = '<div style="font-size:13px;color:var(--ink3)">Loading…</div>';
+  try {
+    const res = await fetch(api() + '/essay/list');
+    const data = await res.json();
+    if (!data.jobs?.length) {
+      body.innerHTML = '<div style="font-size:13px;color:var(--ink3);padding:20px 0">No documents yet. Write your first one!</div>';
+      return;
+    }
+    const bc = { complete:'b-d', failed:'b-f', queued:'b-q', researching:'b-r', writing:'b-w' };
+    body.innerHTML = data.jobs.map(j => `
+      <div class="hist-item" onclick="loadFromHistory('${j.job_id}')">
+        <div>
+          <div class="hist-title">${j.title || j.topic}</div>
+          <div class="hist-meta">${j.paper_type} · ${(j.word_count||0).toLocaleString()} words · ${j.topic}</div>
         </div>
-        <div class="h-meta">${j.paper_type} · ${(j.word_count||0).toLocaleString()} words · ${j.topic}</div>
+        <span class="badge ${bc[j.status]||'b-q'}">${j.status}</span>
       </div>
     `).join('');
-  }catch(e){body.innerHTML='<p style="color:var(--danger);font-size:13px">Could not load. Check Settings → API URL.</p>'}
+  } catch(e) {
+    body.innerHTML = '<div style="font-size:13px;color:var(--red)">Could not load. Check Settings → API URL.</div>';
+  }
 }
 
-async function viewEssay(jid){
-  go('write',document.querySelector('.nav-item'));
-  jobId=jid;
-  const r=await fetch(api()+'/essay/status/'+jid);
-  const job=await r.json();
-  document.getElementById('prog-card').style.display='block';
-  setStatus(job.status,'Loaded from history',100);
-  if(job.sources?.length) showResearch(job.sources,job.source_count,job.research_method);
-  if(job.status==='complete') await loadResult(jid,job);
+async function loadFromHistory(jobId) {
+  currentJobId = jobId;
+  showPage('write', document.getElementById('nav-write'));
+  document.getElementById('progress-area').style.display = 'block';
+  setStatus('complete', 'Loaded from history', 100, 'b-d');
+  const res = await fetch(api() + '/essay/status/' + jobId);
+  const job = await res.json();
+  if (Array.isArray(job.sources) && job.sources.length) {
+    document.getElementById('sources-list').innerHTML =
+      job.sources.map((s,i) => `<div class="source-item"><span class="source-num">[${i+1}]</span>${s}</div>`).join('');
+  }
+  if (job.status === 'complete') await loadResult(jobId, job);
 }
 
-// Originality
-async function checkCurrent(){
-  if(!essay?.job_id)return;
-  const r=await fetch(api()+'/check/originality',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({job_id:essay.job_id})});
-  const d=await r.json();
-  showOrigResult(d,'result-card');
-}
-async function checkDirect(){
-  const text=document.getElementById('check-text').value.trim();
-  if(!text){alert('Paste some text first.');return;}
-  const r=await fetch(api()+'/check/originality',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
-  const d=await r.json();
-  showOrigResult(d,'pg-check');
-}
-function showOrigResult(d,containerId){
-  const ai=d.overall||{};const local=d.local_analysis||{};
-  const pct=Math.round((ai.ai_probability||0)*100);
-  const col=pct<30?'var(--success)':pct<60?'var(--warning)':'var(--danger)';
-  const container=document.getElementById(containerId);
-  container.querySelectorAll('.orig-result').forEach(e=>e.remove());
-  const div=document.createElement('div');div.className='orig-result';
-  div.innerHTML=`<div class="card" style="margin-top:0.75rem">
-    <div class="card-label">Originality Report</div>
-    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text2)">
-      <span>AI content risk: <strong>${ai.ai_content_risk||'unknown'}</strong></span>
-      <span>${pct}%</span>
-    </div>
-    <div class="o-bar"><div class="o-fill" style="width:${pct}%;background:${col}"></div></div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:0.75rem">${ai.recommendation||''}</p>
-    <div class="grid3">
-      <div class="stat-box"><div class="stat-n">${(local.burstiness||0).toFixed(2)}</div><div class="stat-l">Burstiness</div></div>
-      <div class="stat-box"><div class="stat-n">${(local.vocabulary_richness||0).toFixed(2)}</div><div class="stat-l">Vocab richness</div></div>
-      <div class="stat-box"><div class="stat-n">${local.sentence_count||0}</div><div class="stat-l">Sentences</div></div>
-    </div>
-  </div>`;
-  container.appendChild(div);
+// ─────────────────────────────────────────────────
+// ORIGINALITY CHECK
+// ─────────────────────────────────────────────────
+async function runCheck() {
+  const text = document.getElementById('check-text').value.trim();
+  if (!text) { toast('Paste some text first'); return; }
+  try {
+    const res = await fetch(api() + '/check/originality', {
+      method: 'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ text })
+    });
+    const data = await res.json();
+    const ai = data.overall || {};
+    const local = data.local_analysis || {};
+    const pct = Math.round((ai.ai_probability||0)*100);
+    const col = pct<30 ? 'var(--green)' : pct<60 ? 'var(--amber)' : 'var(--red)';
+    document.getElementById('check-result').innerHTML = `
+      <div class="settings-card">
+        <div class="settings-title">Originality Report</div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--ink2);margin-bottom:6px">
+          <span>AI Content Risk: <strong>${ai.ai_content_risk||'unknown'}</strong></span><span>${pct}%</span>
+        </div>
+        <div class="progress-bar" style="height:6px;margin:0 0 10px"><div class="progress-fill" style="width:${pct}%;background:${col}"></div></div>
+        <p style="font-size:13px;color:var(--ink2);margin-bottom:14px">${ai.recommendation||''}</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div class="stat-box"><div class="stat-n">${(local.burstiness||0).toFixed(2)}</div><div class="stat-l">Burstiness</div></div>
+          <div class="stat-box"><div class="stat-n">${(local.vocabulary_richness||0).toFixed(2)}</div><div class="stat-l">Vocab</div></div>
+          <div class="stat-box"><div class="stat-n">${local.sentence_count||0}</div><div class="stat-l">Sentences</div></div>
+        </div>
+      </div>
+    `;
+  } catch(e) { toast('Check failed: '+e.message); }
 }
 
-// Settings
-function saveSettings(){
-  SS('persona', document.getElementById('s-persona').value);
+// ─────────────────────────────────────────────────
+// SETTINGS
+// ─────────────────────────────────────────────────
+function saveSettings() {
+  SS('voice', document.getElementById('s-voice').value);
   SS('citation', document.getElementById('s-citation').value);
   SS('tone', document.getElementById('s-tone').value);
   SS('api', document.getElementById('s-api').value.trim().replace(/\/$/,''));
   SS('notion', document.getElementById('s-notion').value);
-  const msg=document.getElementById('save-msg');
-  msg.textContent='✓ Saved';setTimeout(()=>msg.textContent='',2500);
-  checkSettingsNote();
+  const msg = document.getElementById('save-msg');
+  msg.textContent = '✓ Saved';
+  setTimeout(() => msg.textContent = '', 2500);
+  toast('Settings saved');
 }
 
-function checkSettingsNote(){
-  const note=document.getElementById('settings-check');
-  if(S('persona')) note.innerHTML='✓ Writing voice loaded from settings';
-  else note.innerHTML='<a href="#" onclick="go(\'settings\',document.querySelectorAll(\'.nav-item\')[3]);return false" style="color:var(--accent-text);font-size:12px">Set your writing voice in Settings →</a>';
+// ─────────────────────────────────────────────────
+// UTILITIES
+// ─────────────────────────────────────────────────
+function toast(msg, duration=2800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), duration);
 }
 
-window.onload=()=>{
-  // Load saved settings into form
-  const fields={
-    's-persona':'persona','s-citation':'citation',
-    's-tone':'tone','s-api':'api','s-notion':'notion'
-  };
-  Object.entries(fields).forEach(([id,key])=>{
-    const el=document.getElementById(id);
-    const val=S(key);
-    if(el&&val) el.value=val;
+// ─────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────
+window.onload = () => {
+  // Load settings
+  const fields = { 's-voice':'voice', 's-citation':'citation', 's-tone':'tone', 's-api':'api', 's-notion':'notion' };
+  Object.entries(fields).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    const val = S(key);
+    if (el && val) el.value = val;
   });
-  checkSettingsNote();
+
+  // Init templates
+  renderTemplates('all');
+
+  // Focus editor
+  editor.focus();
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); generateContent(); }
+    if ((e.ctrlKey||e.metaKey) && e.shiftKey && e.key==='O') { e.preventDefault(); generateOutline(); }
+    if (e.key==='Escape') { closeSlash(); document.getElementById('templateModal').classList.remove('open'); }
+  });
+
+  // Status bar note about voice setting
+  if (!S('voice')) {
+    setTimeout(() => toast('Tip: Add your writing voice in Settings for personalized output', 4000), 2000);
+  }
 };
 </script>
 </body>
